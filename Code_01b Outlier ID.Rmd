@@ -1,0 +1,186 @@
+What's going on with the funnels?
+
+```{r load-stuff, echo=FALSE}
+load("03_Data_Annual.RData")
+load("03_Data_Monthly.RData")
+Y.Data = plyr::mutate(Y.Data, Year.Center = Year-1969)
+Y.Data = plyr::ddply(Y.Data, "Station.ID", plyr::mutate, Med.F.sc = scale(Median.F, center = F),Max.F.sc = scale(Max.F, center = F),Min.F.sc = scale(Min.F, center = F))
+M.Data = plyr::mutate(M.Data, Year.Center = Year-1969)
+
+# this function fits slopes to real data
+fit_slopes <- function(flow.dat, response) {
+  area_dat <- unique(flow.dat[,c("Station.ID", "Area")])
+  equation <- as.formula(paste(response,"~Year.Center"))
+  models <- plyr::ddply(flow.dat,c("Station.ID"), function(x){
+    library(nlme)
+    mod <- gls(equation, correlation = corAR1(), data = x)
+    slope <- coef(mod)[[2]]
+    intercept <- coef(mod)[[1]]
+    se <- summary(mod)$tTable[2,2]
+    sigma <- mod$sigma
+    phi <- coef(mod$model[[1]], unconstrained = F)[[1]]
+    data.frame(intercept,slope,se,sigma,phi)
+})
+  models <- plyr::join(models,area_dat, by = "Station.ID")
+  models
+}
+
+# this function takes a data frame from fit_slopes() and generates a simulated
+# time series (WITHOUT SLOPE) plus a gls() fit to that simulated data
+sim_slopes <- function(slope.dat, yrs, return_ts = FALSE) {
+  out <- plyr::adply(slope.dat, 1, function(x) {
+    y <- as.numeric(arima.sim(n = length(yrs),
+        model = list(order = c(1, 0, 0), ar = x$phi),
+        mean = 0, sd = x$sigma)) + x$intercept
+    mod_sim <- gls(y~yrs, correlation = corAR1())
+    slope_sim <- coef(mod_sim)[[2]]
+    se_sim <- summary(mod_sim)$tTable[2,2]
+    if (!return_ts) {
+      data.frame(slope_sim, se_sim)
+    } else {
+      data.frame(y, yrs)
+    }
+  })
+  if (return_ts) out <- out[,c("Station.ID", "yrs", "y")]
+  out
+}
+
+# this function fits a gls model with a variance structure for the residual 
+# error
+# slopes and area are both vectors
+fit_var <- function(slopes, area) {
+  scale_factor <- sd(slopes)
+  # scale_factor <- 1
+  scaled_slope <- slopes / scale_factor
+  m <- gls(scaled_slope~1, weights = varExp(form= ~sqrt(area)/1e4))
+  varexp <- m$model[[1]][[1]]
+  sigma <- m$sigma * scale_factor
+  intercept <- coef(m)[[1]] * scale_factor
+  data.frame(varexp, sigma, intercept)
+}
+
+# wrapper function
+null_sim <- function(flow.dat, response, iter, capture_slopes_i = -999) {
+  yrs <- unique(flow.dat$Year.Center)
+  real_slopes <- fit_slopes(flow.dat, response)
+  example_ts <- sim_slopes(slope.dat = real_slopes, yrs = yrs,
+    return_ts = TRUE)
+  sim_varexp <- plyr::ldply(seq_len(iter), function(i) {
+    simulated_slopes <- sim_slopes(slope.dat = real_slopes, yrs = yrs)
+    if (i %in% capture_slopes_i) {
+    	saveRDS(simulated_slopes, file = paste0("sim-slopes-", response, "-", i, ".rds"))
+    }
+    out <- fit_var(simulated_slopes$slope_sim, area = simulated_slopes$Area)
+    out$.n <- i
+    out
+  })
+  real_varexp <- fit_var(real_slopes$slope, area = real_slopes$Area)
+  list(real_varexp = real_varexp, real_slopes = real_slopes,
+    sim_varexp = sim_varexp, example_ts = example_ts)
+}
+```
+
+```{r run-stuff, cache=TRUE}
+set.seed(1)
+out_min <- null_sim(Y.Data, "Min.F.sc", iter = 9, capture_slopes_i = 1:9)
+out_med <- null_sim(Y.Data, "Med.F.sc", iter = 9, capture_slopes_i = 1:9)
+```
+
+```{r, fig.width=11, fig.height=11, cache=TRUE}
+library(ggplot2)
+# real:
+ggplot(Y.Data, aes(Year.Center, Min.F.sc)) + geom_line() + 
+	facet_wrap(~Station.ID, scales = "free_y")
+ggplot(Y.Data, aes(Year.Center, Med.F.sc)) + geom_line() + 
+	facet_wrap(~Station.ID, scales = "free_y")
+```
+
+Plot some replicates:
+
+```{r}
+
+# intercept_real + 1.96 * sqrt(sigma_real^2 * exp(2*sqrt(models$Area)*x$varexp))
+check_funnels <- function(response, sim_var_df) {
+	par(mfrow = c(3, 3), cex = 0.7, mar = c(2, 2, 1, 1))
+	for(i in 1:9) {
+		x <- readRDS(paste0("sim-slopes-", response, "-", i, ".rds"))
+		a <- seq(sqrt(min(x$Area)), sqrt(max(x$Area)), length.out = 50L) / 1e4
+		xx <- sim_var_df[i,]
+		u <- xx$intercept + 1.96 * sqrt(xx$sigma^2 * exp(2*a*xx$varexp))
+		l <- xx$intercept - 1.96 * sqrt(xx$sigma^2 * exp(2*a*xx$varexp))
+		plot(sqrt(x$Area), x$slope_sim, ylim = range(c(l, u, x$slope_sim)), type = "n")
+		x$.n <- 1:nrow(x)
+		text(sqrt(x$Area), x$slope_sim, labels = x$.n)
+		lines(a * 1e4, u)
+		lines(a * 1e4, l)
+		mtext(i)
+	}
+}
+check_funnels("Med.F.sc", out_med$sim_varexp)
+check_funnels("Min.F.sc", out_min$sim_varexp)
+```
+
+This doesn't look quite as extreme as in your plots, Kyle, but 1 out of 9 is expanding with area.
+
+Here's an example culprit:
+
+```{r}
+x <- readRDS(paste0("sim-slopes-", "Med.F.sc", "-", 6, ".rds"))
+x[c(2, 3, 10, 34),]
+```
+
+Look at those huge sigmas and phis for rows 2 and 3 compared to 10 and 34 (typical sites).
+
+And here's what it can create:
+
+```{r}
+x$.n <- 1:nrow(x)
+plot(sqrt(x$Area), x$slope_sim, type = "n")
+text(sqrt(x$Area), x$slope_sim, labels = x$.n)
+```
+
+A log Area axis helps show what the model sees:
+
+```{r}
+# log axis:
+plot(log(x$Area), x$slope_sim, type = "n")
+text(log(x$Area), x$slope_sim, labels = x$.n)
+```
+
+These are some underlying real time series causing this:
+
+```{r}
+library(ggplot2)
+q <- subset(Y.Data, Station.ID %in% c("08JC002", "08JC001"))
+ggplot(q, aes(Year.Center, Med.F.sc)) + geom_line() + 
+	facet_wrap(~Station.ID, scales = "free_y")
+```
+
+So it's the area-sigma-phi relationship that's causing this.
+
+For min flow, big sites have low variability and little autocorrelation:
+
+```{r}
+ggplot(out_min$real_slopes, aes(log(Area), sigma, size = phi)) + geom_point() +
+	ggtitle("Minimum flow")
+```
+
+For median flow, there are a few moderately big sites that have high variability and fairly high autocorrelation:
+
+```{r}
+ggplot(out_med$real_slopes, aes(log(Area), sigma, size = phi)) + geom_point() +
+		ggtitle("Median flow")
+```
+
+It's those same two sites:
+
+```{r}
+subset(out_med$real_slopes, log(Area) > 10 & sigma > 0.35)
+```
+
+The other sorta culprit is the 3rd one here:
+
+```{r}
+subset(out_med$real_slopes, log(Area) > 9 & sigma > 0.35)
+```
+

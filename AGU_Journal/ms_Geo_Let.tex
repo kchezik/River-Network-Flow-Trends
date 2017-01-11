@@ -1,0 +1,332 @@
+\documentclass[linenumbers,draft]{AGUJournal}
+\usepackage{gensymb}
+\usepackage{textcomp}
+\usepackage{upgreek}
+\usepackage{natbib}
+\usepackage[parfill]{parskip}
+\journalname{Geophysical Research Letters}
+\begin{document}
+\title{River networks dampen long-term hydrological signals of climate change}
+\authors{K. A. Chezik\affil{1},
+	S. C. Anderson\affil{2},
+J. W. Moore\affil{1}}
+
+\affiliation{1}{Earth to Ocean Research Group, Department of Biological Sciences, Simon Fraser University, 8888 University Dr., Burnaby, British Columbia V5A 1S6, Canada}
+\affiliation{2}{School of Aquatic and Fishery Sciences, University of Washington, Box 455020, Seattle, WA 98195, USA}
+
+\correspondingauthor{K. A. Chezik}{kchezik@sfu.ca}
+
+\begin{keypoints}
+\item River networks act as diversified portfolios of climate; by integrating varied climate signals the network substantially dampens downstream climate-driven hydrologic trends.
+\item River network climate dampening varied seasonally in the Fraser River basin, declining sharply with the spring freshet, suggesting that basin-wide events homogenize the climate portfolio, thereby degrading the network dampening effect.
+\item Rivers that integrate a diverse climate portfolio offer climate change relief to riverine biota that is many times greater than homogenized systems. Leveraging network dampening properties by promoting land use practices that maintain or enhance climate portfolio diversity may be a powerful tool in mitigating climate change impacts. 
+\end{keypoints}
+
+\begin{abstract}
+River networks may dampen local hydrologic climate change by aggregating a diverse climate portfolio with variable upstream climate signals. Here we examine this hypothesis using flow trend estimates (1970--2007) at 55 hydrometric gauge stations within the Fraser River watershed in British Columbia, Canada. The Fraser River dampened variability in downstream long-term median discharge by 95\% from between -6 and 18\% per-decade among small watersheds to between 0.8 and 1.6\% per-decade near the confluence. A null model approach indicated that dampening of annual median flow trends within the Fraser River was typically 5.4 times greater than would be expected of a watershed exhibiting a consistent basin-wide climate response. Although climate dampening strength varied seasonally, our findings indicate that large free-flowing rivers offer a powerful and largely unappreciated process of climate change mitigation. River networks that integrate a diverse climate portfolio can dampen local extremes and offer climate relief to riverine biota.
+\end{abstract}
+
+\section{Introduction} 
+As billions are spent adapting to climate change by such means as building dikes or improving stormwater drainage \citep{Narain:2011}, certain habitats and processes provide a natural defense system that mitigates climate change impacts \citep{Jones:2012}. For example, coastal habitats such as oyster reefs, mangrove forests, and eelgrass beds shield 67\% of the United States coastline and 1.4 million people from sea level rise and storms \citep{Arkema:2013}. Protection and enhancement of these natural systems has become a key component of many climate mitigation strategies \citep{Guerry:2015}, as they return multiple cost-effective services in contrast to engineered alternatives \citep{Jones:2012}. For instance, revitalization of the Mississippi delta not only improves storm protection, but also increases production and sustainability of fisheries and wildlife resources, protects the water supply, and reduces the impact of wastewater effluent \citep{Conservation:1998}. The value of climate buffering habitats stands only to increase as average global temperatures climb. Recent international agreements in Paris aim to limit global temperature rise to 1.5\degree{C} \citep{Hulme:2016}, a goal that concedes a minimum doubling of observed warming \citep{Hartmann:2013}; therefore, an urgent challenge and opportunity is discovering systems that naturally buffer against oncoming impacts of climate change.
+
+River systems may offer an unappreciated defense against some aspects of climate change. Climate change is altering global precipitation patterns \citep{Donat:2016} and subsequently river flow regimes \citep{Hartmann:2013,Palmer:2009}. Earlier snowmelt \citep{Rauscher:2008}, reduced snow pack \citep{McCabe:2014}, shifts from snow to rain, and changes in the annual distribution of precipitation are all impacting stream flow \citep{Hartmann:2013}, resulting in flashier flows with increased frequency of flooding \citep{Hirabayashi:2013}, longer periods of drought and critically low flows for wildlife and agriculture \citep{Melillo:2014}. However, we hypothesize that large free-flowing river networks may naturally dampen these signals of climate change by integrating across different manifestations of climate. Processes that aggregate across asynchronous components tend to dampen the aggregate, a process known as the portfolio effect \citep{Doak:1998}. Climate is expressed differently and asynchronously over the landscape \citep{George:2015} and on account of their branching architecture and directional flow, river networks directionally integrate these varied climate manifestations \citep{Peterson:2013}, potentially dampening the local climatic response of sub-catchments. Large free-flowing rivers may have diverse climate portfolios, with sub-catchments acting as assets in their portfolio, thereby dampening local climate impacts. Portfolio effects in rivers are already known to dampen short-term variation \citep{Moore:2015,Yeakel:2014} but attenuation of long-term climate driven shifts have yet to be examined.
+
+Here we examine whether rivers attenuate local long-term climate change through analyses of hydrometric data from one of the largest free-flowing rivers in North America. Located in British Columbia, Canada, the Fraser River drains an area approximately the size of the United Kingdom (\texttildelow 217,000 km\textsuperscript{2}) and in a rare combination is fairly well monitored while also having no dams on its main stem \citep{Vorosmarty:2010} (Figure~\ref{figone}). This watershed drains interior high plateau, coastal mountains, and the Canadian Rockies, and thus integrates a diverse mosaic of landscapes, weather, and climate. As with other mid-latitude rivers \citep{Bindoff:2013}, the Fraser River has expressed increasing trends in discharge volume and variability over the last several decades \citep{Dery:2012,Morrison:2002}. The river's discharge is monitored by hydrometric gauge stations throughout the watershed. We analyzed 38 years of data collected concurrently at 55 of these stations and applied a novel analytical approach to examine whether this large river exhibits signals of long-term climate dampening.
+
+\begin{figure}[h]
+	\centerline{\includegraphics[height=4in]{Fig1_Map2.pdf}}
+	\caption{Flow gauge sites within the Fraser River basin (dark grey) in British Columbia Canada (light grey). Flow gauge sites (yellow dots) are scaled by the size of the contributing area. The map is projected in Albers BC UTMs to provide an equal area depiction of the region but labels are expressed in WGS84 latitude and longitude.}
+	\label{figone}
+\end{figure}
+
+\section{Data and Methods}
+\subsection{Discharge Data and Flow Metrics}
+To assess signals of climate change in hydrology within the Fraser River basin we downloaded daily flow data from Environment Canada's HYDAT database. Within HYDAT we selected hydrometric gauge stations using three criteria: (i) the station was within the Fraser River basin, (ii) the station's flow data were not observed to be dam influenced, and (iii) the station collected data in each month between 1970 and 2007 where no month was missing more than 5 days of data and at least 35 complete years were present. We selected this 38-year range because this period maximized the number of gauge stations in the Fraser River basin (\textit{n}=55) operating concurrently over a long enough time period in which climate trends may be observable. We interpolated missing data using a linear model in log-space, but of the 763,345 days of data only 23 days were interpolated. Because dams control flow and stabilize flow trends, we removed sites where daily flow exhibited unusually high autocorrelation and low variability relative to other sites of similar size, and were observed downstream of, and atypically close to, a dam (\textit{n}=3). The downstream distance of gauge stations from dams was determined using GIS spatial layers available in the \textit{BC Data Catalog}, maintained by the provincial government of British Columbia.
+
+As climate change alters precipitation patterns from snow to rain in temperate regions, rivers are generally predicted to have lower low-flows and higher high-flows, as well as earlier snowmelt \citep{Nijssen:2001}. These manifestations of rising temperatures are impacting species \citep{Xenopoulos:2006} and people \citep{Hirabayashi:2013}. We summarized our daily discharge data into annual and monthly flow metrics that capture these transitions. We used maximum- and minimum-flow estimates to capture trends in extreme discharge and median-flow estimates to capture general annual and seasonal trends. Because the timing of flow is particularly important to the phenology of many organisms, we also calculated the day-of-year in which half the annual flow was reached. 
+
+\subsection{River Discharge Trend Analysis}
+For a river network to act as a portfolio of climate and dampen the effects of climate change, expressions of climate and their trends over time need to vary throughout the network (Figure~\ref{figtwo}). We estimated annual and monthly flow trends for each response variable at each gauge station using a generalized least squares (GLS) model with an AR1 autocorrelation function: 
+\begin{linenomath*}
+\begin{equation}
+  \mathrm{flow}_{s,t} = a_s + b_s \mathrm{year}_{s,t} + \epsilon_{s,t}, \quad 
+  \epsilon_{s,t} \sim \mathcal{N}(\upphi \epsilon_{s,t-1}, \sigma_\mathrm{flow}^2) \label{eq1},
+\end{equation}
+\end{linenomath*}
+where $\mathrm{flow}_{s,t}$ represents a flow metric [log(maximum), log(minimum), log(median), logit(day-of-year to half-annual-flow)] at each site ($s$) and time point ($t$),  and $\mathrm{year}_{s,t}$ represents the time in years (e.g., 1970, 1971, \ldots, 2007) with 1988 subtracted to approximately center the predictor. Parameters $b_{s}$ (slope) and $a_{s}$ (intercept) represent the estimated mean effect of time on $\mathrm{flow}_{s,t}$ and the estimate of $\mathrm{flow}_{s,t}$ at time zero (i.e., 1988) respectively. Error ($\epsilon_{s,t}$) of the current time step for a given site was allowed to be correlated with that of the previous time step by $\upphi$ and was assumed to be normally distributed with a variance of $\sigma^{2}$. To ensure our model estimates and simulations remained within the calendar year we logit transformed our flow-timing response variable (i.e., day-of-year to half-annual-flow) after scaling the data between 0 and 1 (i.e., dividing by 365).
+
+\begin{figure}[h]
+	\centerline{\includegraphics[height=3in]{Fig2_Flow-Time.pdf}}
+	\caption{Annual median flow at 55 sites within the Fraser River basin. Flow rates are scaled at each site by the root mean square in order to make flow rates comparable among sites. Lines are loess smoothers with a smoothing span of 0.25 predicted each month between 1970 and 2007. Line and point size are scaled to each flow gauge site's watershed area. The data show inter-annual variability within sites with varying magnitudes and directions among sites, illustrating variable long-term change in hydrology across the basin.}
+	\label{figtwo}
+\end{figure}
+
+\subsection{River Network Trend Attenuation Analysis}
+We hypothesized that larger catchments within the Fraser River watershed with more diverse climate portfolios would have dampened long-term hydrological change when compared to their smaller sub-catchments. Therefore, to test whether networks dampen climate signals we regressed site-specific trend estimates (e.g., \% change$\cdot$decade\textsuperscript{-1}) onto each site's catchment area using a generalized least squares model:
+\begin{linenomath*}
+\begin{equation}
+	\hat{b}_{s} = c + d\sqrt{\mathrm{area}_{s}} + \eta_{s}, \quad
+  \eta_{s} \sim \mathcal{N}(0, f(\mathrm{area}_{s})) \label{eq2},
+\end{equation}
+\end{linenomath*}
+where $\hat{b}_{s}$ represents a flow trend at a given site ($s$) and $\mathrm{area}_{s}$ represents site $s$'s watershed area. Fitted $d$ and $c$ parameters represent the mean effect of $\sqrt{\mathrm{watershed area}}$ on flow trends and the mean basin-wide flow trend at a theoretical watershed area of zero, respectively. To quantify attenuation, we modeled the change in trend variability with the change in catchment area using an exponential variance function \citep[p.~211]{Pinheiro:2006}: 
+\begin{linenomath*}
+\begin{equation}
+	f(\mathrm{area}_{s})=\sigma_b^2 \exp(2\updelta\sqrt{\mathrm{area}_{s}}) \label{eq3},
+\end{equation}
+\end{linenomath*} 
+where the variance of the estimated error ($\eta$) changes exponentially with increasing $\sqrt{\mathrm{area}}$. This variance function allowed us to predict the range of flow trend values that would be expected as watershed area increased. A decreasing range of flow trends with increasing watershed area would indicate a climate-dampening network effect.
+
+\subsection{River Discharge Trend Simulation}
+In the observed data, small watersheds exhibited greater variability around their trend estimates than large watersheds, likely because of greater short-term variation in small catchments \citep{Moore:2015}. This relationship between watershed size and trend certainty may pull small watershed trend estimates away from zero, thereby creating the appearance of decreasing trend variability among sites as watershed size increases. Using a null-hypothesis framework we simulated time-series for each site with no underlying trend. These simulations were generated by a random walk process with the observed standard deviation and autocorrelation parameters ($\hat{\upsigma}$, $\hat{\upphi}$) at our sites. Using the same GLS model and AR1 correlation structure as applied to the observed data (eq.~\ref{eq1}), we estimated trends for 1000 simulated time series at each site for each response variable (e.g., Figure S3). This simulation process, a form of parametric bootstrapping, created distributions of null-expectations with which we compared our observed results.
+
+We then applied equation~\ref{eq2} to each of the 1000 basin-wide simulations, resulting in 1 observed variance exponent parameter ($\hat{\updelta}$) and 1000 simulated $\hat{\updelta}$ for each flow metric. By comparing our observed attenuation with our basin-wide null-model simulations we addressed the potential that more variable flows in smaller catchments contribute to the observed pattern of flow trends as a function of watershed area (Figure~\ref{figthree}). This null-model approach asks how likely our observation is due to a sampling effect versus a network portfolio effect.
+
+\begin{figure}[h]
+	\centerline{\includegraphics[height=4.5in]{Fig3_Annual-Funnel.pdf}}
+	\caption{Annual flow trend attenuation within the Fraser River basin. (\textbf{Left}) Trend estimates $\pm$ one standard error (SE, grey) plotted against watershed area (km\textsuperscript{2}). Blue represents observed attenuation; orange and red represent simulated attenuation that is weaker and stronger than observed. (\textbf{Right}) Density plots show null model simulated variance exponents ($\hat{\updelta}$) and the proportion on either side of the observed variance exponent (blue). Flow metrics include long-term flow-timing shifts (change per decade in day-of-year (DOY) to half annual flow), where decreasing trends suggest more annual flow is occurring earlier in the year (a), and the percent change per decade in minimum (b), maximum (c) and median (d) annual flow. Simulated lines ignore variance in the intercept and slope to focus visually on attenuation.}
+	\label{figthree}
+\end{figure}
+
+\subsection{Dampening Summary Statistics}
+We calculated attenuation certainty as the percentage of simulated $\hat{\updelta}$ that were less than the observed $\hat{\updelta}$. We calculated attenuation strength as the ratio between the standard deviation at the smallest and largest watersheds as defined by the exponential variance function (i.e.,\\$\sqrt{f(\mathrm{area}_1)} / \sqrt{f(\mathrm{area}_2)}$ ). To compare the degree of attenuation observed with the null-simulated attenuation, we compared this ratio with the same ratio calculated from the null-simulated data (i.e., $\left( \sqrt{f(\mathrm{area}_1)} / \sqrt{f(\mathrm{area}_2)} \right) / \left( \sqrt{f(\mathrm{area}_{\mathrm{null} 1})} / \sqrt{f(\mathrm{area}_{\mathrm{null} 2})} \right)$ ). Finally, to estimate how the day-of-year to half-annual-flow was changing, we estimated the steepest point of each site's logistic curve and multiplied this slope value by 365 to revert from our 0--1 scale to our original annual range of 0--365. To get a decadal rate we multiplied these results by 3.8 (number of decades in 38 years). We estimated the steepest part of the logistic curve using the \textit{divide by four} rule \citep{Gelman:2008}, where dividing the coefficient by four equals the first derivative (slope) of the logistic curve at its steepest point.
+
+\section{Results}
+\subsection{Hydrologic Trend Diversity}
+Long-term changes in flow metrics varied substantially across the watershed (Figure~\ref{figthree}). For instance, annual maximum flow decreased in 38 sites but increased in 17 over the last four decades (-28 to 15\% change$\cdot$decade\textsuperscript{-1}, std. dev. = 6\%). Annual median flow showed similar variability but a greater tendency towards rising flow trends with 49 increasing and only six decreasing (-5 to 25\% change$\cdot$decade\textsuperscript{-1} std. dev. = 5\%). Thus, within the Fraser River basin, there are a variety of long-term trends in flow, suggesting a diversity of climate responses.
+
+\subsection{Annual Hydrologic Trend Dampening}
+Long-term changes in hydrology were less variable in larger catchments, as predicted, demonstrating between 85 and 92\% dampening of flow trends moving from headwater catchments to the network's confluence. In other words, the largest catchments were approximately 10 times more stable in their climate response than the smallest catchments. For instance, trends ranged between a 6\% reduction and 19\% increase in median flow per decade among small watersheds, while large watersheds ranged between 0.8 and 1.6\% change per decade. Similar attenuation was seen in flow timing with a 94\% reduction in the day-of-year to half-annual-flow trends such that small watersheds were reaching half their annual flow between 8 days later and 25 days earlier while large watersheds have only shifted 2 to 4 days earlier between 1970 and 2007. 
+
+A null model approach illustrated that support for a river network portfolio effect was greater than 90\% for three of four annual flow trend metrics and as high as 98\% for median-annual-flow trends (Figure~\ref{figthree}). Trend attenuation was 3.1 (0.7--9.1 this and hereafter are 90\% intervals), 1.6 (0.3--4.6), 3.4 (1.0--8.5) and 5.4(1.5--14.6) times greater than the null model for annual-flow timing, and minimum, maximum and median annual-flow respectively. These statistics provide strong support for the hypothesis that river network portfolio effects contribute to climate dampening in large rivers.
+
+\subsection{Seasonal Hydrologic Trend Dampening}
+Regional flow-trends and attenuation strength varied by season. Analysis of monthly trends revealed that winter flows have been getting higher and summer flows have been getting lower over time, but that these trends have been more variable in smaller catchments (Figure~\ref{figfour}, S1, S2). For example, winter maximum flows in small catchments ranged from nearly no change to dramatic 44\% increases per decade with decreases only as large as 15\%. Despite these extreme locations, on average the basin has only experienced moderate winter maximum flow increases of 5--10\%. Summer flows exhibited the opposite, with decreases in high flows over time. However, there was weak evidence of attenuation in the spring (Figure~\ref{figfour}, S1, S2). For example, in the spring the likelihood of network-driven attenuation of maximum flow trends was as low as 24\% (Figure~\ref{figfour}). The deterioration of the network's attenuation strength was coincident with the spring freshet, when snowmelt drives high flows across the basin. Synchronization events such as the freshet may subvert river network dampening mechanisms by homogenizing the region's response to climate shifts.
+
+\begin{figure}[htp]
+	\centerline{\includegraphics[height=5.2in]{Fig4_Max-Monthly-Density-Funnel.pdf}}
+	\caption{Monthly maximum flow trend attenuation within the Fraser River basin. (\textbf{Left}) Fraser River's basin-wide maximum-flow trend estimates (i.e., intercept = vertical grey lines) by month with density distributions of null-model simulations. Observed values falling further from the center of the density distribution suggest greater evidence for changes in maximum flow and a greater shift in magnitude. (\textbf{Center}) Observed monthly Fraser River maximum-flow variance exponent ($\hat{\updelta}$, blue) and associated density distribution of simulated $\hat{\updelta}$ estimates. Decimal values represent the percent of simulated data exhibiting weaker attenuation (yellow) than observed. (\textbf{Right}) Trend estimates $\pm$ one standard error (SE, grey) plotted against watershed area (km\textsuperscript{2}) for four seasonally representative months.These reflect months in the prior columns and describe the variation in percent change per decade of maximum flow among sites. Simulated lines ignore variance in the intercept and slope to focus visually on attenuation.}
+	\label{figfour}
+\end{figure}
+
+\section{Discussion}
+Climate change is already causing economic and conservation challenges for river systems worldwide \citep{Palmer:2009}. For example, sockeye salmon in the Fraser River have seen as much as 80\% pre-spawn mortality in years with later run-off and elevated temperatures, leading managers to reduce harvest rates in these years. In the absence of climate dampening the impacts of these temperature extremes could have been dramatically worse. As climate change progresses, river hydrology will continue to shift, further stressing riverine ecosystems and subsequently demanding responsive management. However, river networks provide an underappreciated defense against these climate-change impacts as they are uniquely organized to leverage locally-filtered expressions of climate into stability. A simple product of form and gravity, stability emerges as river networks integrate landscape heterogeneity, creating a downstream portfolio of climate that smooths local extremes and tempers long-term flow trends. Therefore, larger rivers should have flow regimes that are less sensitive to local climate trends.
+
+Despite these dampening processes, river networks are still vulnerable to climate change. In the Fraser River, the furthest downstream reaches are still exhibiting small but detectable signals of hydrological shifts. Late fall, winter and early spring flows have generally increased while late spring, summer and early fall flows have decreased (Figure~\ref{figfour}, S1, S2). These findings generally support previous studies demonstrating earlier spring runoff  \citep{Dery:2012}, decreasing summer and fall flows  \citep{Stahl:2006} and increased winter flows  \citep{Healey:2011}. Together, this body of work indicates basin-wide effects of climate change, where shifts in winter precipitation from snow to rain is resulting in increased winter runoff and decreased snow pack contributions to summer flows. Our work suggests that because the basin is responding heterogeneously to the shifting climate and integrating climate trends, the downstream impacts of climate change on flow have been greatly reduced. In contrast to previously studied types of climate mitigation where habitats modify climate drivers (e.g., carbon storage) or physically absorb climate change impacts (e.g., mangroves), network climate dampening smooths out extreme climatic trends thereby reducing but not eliminating the impact of local extremes.
+
+Our study provides insight into the spatial scaling of climate change. We focused on a vast watershed with a remarkably diverse climate portfolio, yet we would still expect that smaller rivers could dampen some degree of climate variability. For instance, based on our data, we predict that rivers draining a catchment of 60,000 km\textsuperscript{2} would have 66\% less variability in the rate of change in hydrology than a smaller river draining ~5000 km\textsuperscript{2}. While this dampening is less than the 10-fold decrease observed in the entire 220,000 km\textsuperscript{2} Fraser River, smaller watersheds can offer a defense against the impacts of climate change.
+
+There have been extensive efforts to predict the hydrologic sensitivity of rivers due to climate change through downscaled climate projections \citep{Nijssen:2001}. Here we demonstrate that large rivers may have an inherent ability to absorb local climate change. But just as the destruction of coastal habitats degrades their natural capacity to mitigate sea-level rise or storm events \citep{Arkema:2013}, the management of river basins likely impacts the ability for river networks to attenuate climate trends. For example, dams synchronize the flow regimes of rivers  \citep{Poff:2007} and logging increases the magnitude and frequency of extreme events such as high and low flows through increased runoff rates \citep{Zhang:2014}. These anthropogenic activities may magnify the impacts of climatic shifts such as the transition from snow- to rain-dominated precipitation in some basins. The climate cost of these watershed activities should be considered in environmental decision making. Climate change is a global challenge; here we suggest large rivers dampen local change by leveraging landscape diversity into a portfolio of climate, an important tool in the climate-mitigation toolbox.
+
+\acknowledgments
+All the data and R scripts used in this study are freely available on github at https://github.com/kchezik/River-Network-Flow-Trends. This study could not have been done without the decades of flow data collected by those at Environment Canada. K.A. Chezik and J.W. Moore were supported by the Liber Ero Chair of Coastal Science and Management and Simon Fraser University. S.C. Anderson was supported by the David H. Smith Conservation Research Fellowship.
+
+\begin{thebibliography}{30}
+\providecommand{\natexlab}[1]{#1}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+
+\bibitem[{\textit{Arkema et~al.}(2013)\textit{Arkema, Guannel, Verutes, Wood,
+  Guerry, Ruckelshaus, Kareiva, Lacayo, and Silver}}]{Arkema:2013}
+Arkema, K.~K., G.~Guannel, G.~Verutes, S.~A. Wood, A.~Guerry, M.~Ruckelshaus,
+  P.~Kareiva, M.~Lacayo, and J.~M. Silver (2013), Coastal habitats shield
+  people and property from sea-level rise and storms, \textit{Nature Climate
+  Change}, \textit{3}(10), 913--918.
+
+\bibitem[{\textit{Bindoff et~al.}(2013)\textit{Bindoff, Stott, AchutaRao,
+  Gillett, Gutzler, Hansingo, Hegerl, Hu, Jain, Mokhov, Overland, Perlwitz,
+  Sebbari, and Zhang}}]{Bindoff:2013}
+Bindoff, N.~L., P.~A. Stott, M.~R. AchutaRao, N.~P. Gillett, D.~Gutzler,
+  K.~Hansingo, G.~C. Hegerl, Y.~Hu, S.~Jain, I.~I. Mokhov, J.~Overland,
+  J.~Perlwitz, R.~Sebbari, and X.~Zhang (2013), Detection and attribution of
+  climate change: from global to regional, \textit{Tech. rep.},
+  Intergovernmental Panel on Climate Change.
+
+\bibitem[{\textit{D{\'e}ry et~al.}(2012)\textit{D{\'e}ry,
+  Hern{\'a}ndez-Henr{\'\i}quez, Owens, Parkes, and Petticrew}}]{Dery:2012}
+D{\'e}ry, S.~J., M.~A. Hern{\'a}ndez-Henr{\'\i}quez, P.~N. Owens, M.~W. Parkes,
+  and E.~L. Petticrew (2012), A century of hydrological variability and trends
+  in the {F}raser {R}iver basin, \textit{Environmental Research Letters},
+  \textit{7}(2), 024,019.
+
+\bibitem[{\textit{Doak et~al.}(1998)\textit{Doak, Bigger, Harding, Marvier,
+  O'malley, and Thomson}}]{Doak:1998}
+Doak, D.~F., D.~Bigger, E.~Harding, M.~Marvier, R.~O'malley, and D.~Thomson
+  (1998), The statistical inevitability of stability-diversity relationships in
+  community ecology, \textit{The American Naturalist}, \textit{151}(3),
+  264--276 %@ 0003--0147.
+
+\bibitem[{\textit{Donat et~al.}(2016)\textit{Donat, Lowry, Alexander, O'Gorman,
+  and Maher}}]{Donat:2016}
+Donat, M.~G., A.~L. Lowry, L.~V. Alexander, P.~A. O'Gorman, and N.~Maher
+  (2016), More extreme precipitation in the world's dry and wet regions,
+  \textit{Nature Climate Change}, \textit{6}(5), 508--513,
+  \doi{10.1038/nclimate2941}.
+
+\bibitem[{\textit{Gelman and Hill}(2008)}]{Gelman:2008}
+Gelman, A., and J.~Hill (2008), Data analysis using regression and multilevel
+  hierarchical models, \doi{10.1080/02664760801949043}.
+
+\bibitem[{\textit{George et~al.}(2015)\textit{George, Thompson~III, and
+  Faaborg}}]{George:2015}
+George, A.~D., F.~R. Thompson~III, and J.~Faaborg (2015), Using {L}i{DAR} and
+  remote microclimate loggers to downscale near-surface air temperatures for
+  site-level studies, \textit{Remote Sensing Letters}, \textit{6}(12),
+  924--932.
+
+\bibitem[{\textit{Guerry et~al.}(2015)\textit{Guerry, Polasky, Lubchenco,
+  Chaplin-Kramer, Daily, Griffin, Ruckelshaus, Bateman, Duraiappah, Elmqvist,
+  Feldman, Folke, Hoekstra, Kareiva, Keeler, Li, McKenzie, Ouyang, Reyers,
+  Ricketts, Rockstr{\"o}m, Tallis, and Vira}}]{Guerry:2015}
+Guerry, A.~D., S.~Polasky, J.~Lubchenco, R.~Chaplin-Kramer, G.~C. Daily,
+  R.~Griffin, M.~Ruckelshaus, I.~J. Bateman, A.~Duraiappah, T.~Elmqvist, M.~W.
+  Feldman, C.~Folke, J.~Hoekstra, P.~M. Kareiva, B.~L. Keeler, S.~Li,
+  E.~McKenzie, Z.~Ouyang, B.~Reyers, T.~H. Ricketts, J.~Rockstr{\"o}m,
+  H.~Tallis, and B.~Vira (2015), Natural capital and ecosystem services
+  informing decisions: From promise to practice, \textit{Proceedings of the
+  National Academy of Sciences}, \textit{112}(24), 7348--7355,
+  \doi{10.1073/pnas.1503751112}.
+
+\bibitem[{\textit{Hartmann et~al.}(2013)\textit{Hartmann, Klein, Rusticucci,
+  Alexander, Bronnimann, Charabi, Dentener, Dlugokencky, Easterling, Kaplan,
+  Soden, Thorne, Wild, and Zhai}}]{Hartmann:2013}
+Hartmann, D.~L., A.~M.~G. Klein, M.~Rusticucci, L.~V. Alexander, S.~Bronnimann,
+  Y.~Charabi, F.~J. Dentener, D.~R. Dlugokencky, A.~Easterling, B.~J. Kaplan,
+  B.~J. Soden, P.~W. Thorne, M.~Wild, and P.~M. Zhai (2013), Climate change
+  2013: The physical science basis., \textit{Tech. rep.}, Intergovernmental
+  Panel on Climate Change.
+
+\bibitem[{\textit{Healey and Bradford}(2011)}]{Healey:2011}
+Healey, M., and M.~Bradford (2011), The cumulative impacts of climate change on
+  {F}raser {R}iver sockeye salmon (\textit{{O}ncorhynchus nerka}) and
+  implications for management, \textit{Can. J. Fish. Aquat. Sci.},
+  \textit{68}(4), 718--737.
+
+\bibitem[{\textit{Hirabayashi et~al.}(2013)\textit{Hirabayashi, Mahendran,
+  Koirala, Konoshima, Yamazaki, Watanabe, Kim, and Kanae}}]{Hirabayashi:2013}
+Hirabayashi, Y., R.~Mahendran, S.~Koirala, L.~Konoshima, D.~Yamazaki,
+  S.~Watanabe, H.~Kim, and S.~Kanae (2013), Global flood risk under climate
+  change, \textit{Nature Climate Change}, \textit{3}, 816--821.
+
+\bibitem[{\textit{Hulme}(2016)}]{Hulme:2016}
+Hulme, M. (2016), 1.5$\degree${C} and climate research after the {P}aris
+  {A}greement, \textit{Nature Climate Change}, \textit{6}(3), 222--224.
+
+\bibitem[{\textit{Jones et~al.}(2012)\textit{Jones, Hole, and
+  Zavaleta}}]{Jones:2012}
+Jones, H.~P., D.~G. Hole, and E.~S. Zavaleta (2012), Harnessing nature to help
+  people adapt to climate change, \textit{Nature Climate Change},
+  \textit{2}(7), 504--509.
+
+\bibitem[{\textit{McCabe and Wolock}(2014)}]{McCabe:2014}
+McCabe, G.~J., and D.~M. Wolock (2014), Spatial and temporal patterns in
+  conterminous {U}nited {S}tates streamflow characteristics,
+  \textit{Geophysical Research Letters}, \textit{41}(19), 6889--6897.
+
+\bibitem[{\textit{Melillo et~al.}(2014)\textit{Melillo, Richmond, and
+  Yohe}}]{Melillo:2014}
+Melillo, J.~M., T.~Richmond, and G.~W. Yohe (2014), Climate change impacts in
+  the {U}nited {S}tates: the third national climate assessment, \textit{US
+  Global change research program}, \textit{841}.
+
+\bibitem[{\textit{Moore et~al.}(2015)\textit{Moore, Beakes, Nesbitt, Yeakel,
+  Patterson, Thompson, Phillis, Braun, Favaro, Scott et~al.}}]{Moore:2015}
+Moore, J.~W., M.~P. Beakes, H.~K. Nesbitt, J.~D. Yeakel, D.~A. Patterson, L.~A.
+  Thompson, C.~Phillis, D.~C. Braun, C.~Favaro, D.~C. Scott, et~al. (2014),
+  Emergent stability in a large free-flowing watershed, \textit{Ecology}, 
+  \textit{96}(2), 340--347.
+
+\bibitem[{\textit{Morrison et~al.}(2002)\textit{Morrison, Quick, and
+  Foreman}}]{Morrison:2002}
+Morrison, J., M.~C. Quick, and M.~G. Foreman (2002), Climate change in the
+  {F}raser {R}iver watershed: flow and temperature projections, \textit{Journal
+  of Hydrology}, \textit{263}(1), 230--244.
+
+\bibitem[{\textit{Narain et~al.}(2011)\textit{Narain, Margulis, and
+  Essam}}]{Narain:2011}
+Narain, U., S.~Margulis, and T.~Essam (2011), Estimating costs of adaptation to
+  climate change, \textit{Climate Policy}, \textit{11}(3), 1001--1019.
+
+\bibitem[{\textit{Nijssen et~al.}(2001)\textit{Nijssen, O'Donnell, Hamlet, and
+  Lettenmaier}}]{Nijssen:2001}
+Nijssen, B., G.~M. O'Donnell, A.~F. Hamlet, and D.~P. Lettenmaier (2001),
+  Hydrologic sensitivity of global rivers to climate change, \textit{Climatic
+  Change}, \textit{50}(1-2), 143--175.
+
+\bibitem[{\textit{Palmer et~al.}(2009)\textit{Palmer, Lettenmaier, Poff,
+  Postel, Richter, and Warner}}]{Palmer:2009}
+Palmer, M.~A., D.~P. Lettenmaier, N.~L. Poff, S.~L. Postel, B.~Richter, and
+  R.~Warner (2009), Climate change and river ecosystems: protection and
+  adaptation options, \textit{Environmental Management}, \textit{44}(6),
+  1053--1068.
+
+\bibitem[{\textit{Peterson et~al.}(2013)\textit{Peterson, Ver~Hoef, Isaak,
+  Falke, Fortin, Jordan, McNyset, Monestiez, Ruesch, Sengupta
+  et~al.}}]{Peterson:2013}
+Peterson, E.~E., J.~M. Ver~Hoef, D.~J. Isaak, J.~A. Falke, M.-J. Fortin, C.~E.
+  Jordan, K.~McNyset, P.~Monestiez, A.~S. Ruesch, A.~Sengupta, et~al. (2013),
+  Modelling dendritic ecological networks in space: an integrated network
+  perspective, \textit{Ecology Letters}, \textit{16}(5), 707--719.
+
+\bibitem[{\textit{Pinheiro and Bates}(2006)}]{Pinheiro:2006}
+Pinheiro, J., and D.~Bates (2006), Mixed-effects models in {S} and {S-PLUS},
+  \textit{Springer Science \& Business Media}.
+
+\bibitem[{\textit{Poff et~al.}(2007)\textit{Poff, Olden, Merritt, and
+  Pepin}}]{Poff:2007}
+Poff, L.~N., J.~D. Olden, D.~M. Merritt, and D.~M. Pepin (2007), Homogenization
+  of regional river dynamics by dams and global biodiversity implications,
+  \textit{Proceedings of the National Academy of Sciences}, \textit{104}(14),
+  5732--5737, \doi{10.1073/pnas.0609812104}.
+
+\bibitem[{\textit{Rauscher et~al.}(2008)\textit{Rauscher, Pal, Diffenbaugh, and
+  Benedetti}}]{Rauscher:2008}
+Rauscher, S.~A., J.~S. Pal, N.~S. Diffenbaugh, and M.~M. Benedetti (2008),
+  Future changes in snowmelt-driven runoff timing over the western {US},
+  \textit{Geophysical Research Letters}, \textit{35}(16).
+
+\bibitem[{\textit{\relax{Louisiana Coastal Wetlands Conservation and
+  Restoration Task Force and the Wetlands Conservation and Restoration
+  Authority}}(1998)}]{Conservation:1998}
+\relax{Louisiana Coastal Wetlands Conservation and Restoration Task Force and
+  the Wetlands Conservation and Restoration Authority} (1998), Coast 2050:
+  {T}oward a sustainable coastal louisiana, \textit{Tech. rep.}, Louisiana
+  Department of Natural Resources.
+
+\bibitem[{\textit{Stahl and Moore}(2006)}]{Stahl:2006}
+Stahl, K., and R.~Moore (2006), Influence of watershed glacier coverage on
+  summer streamflow in {B}ritish {C}olumbia, {C}anada, \textit{Water Resources
+  Research}, \textit{42}(6).
+
+\bibitem[{\textit{V{\"o}r{\"o}smarty et~al.}(2010)\textit{V{\"o}r{\"o}smarty,
+  McIntyre, Gessner, Dudgeon, Prusevich, Green, Glidden, Bunn, Sullivan,
+  Liermann et~al.}}]{Vorosmarty:2010}
+V{\"o}r{\"o}smarty, C.~J., P.~McIntyre, M.~O. Gessner, D.~Dudgeon,
+  A.~Prusevich, P.~Green, S.~Glidden, S.~E. Bunn, C.~A. Sullivan, C.~R.
+  Liermann, et~al. (2010), Global threats to human water security and river
+  biodiversity, \textit{Nature}, \textit{467}(7315), 555--561.
+
+\bibitem[{\textit{Xenopoulos and Lodge}(2006)}]{Xenopoulos:2006}
+Xenopoulos, M.~A., and D.~M. Lodge (2006), Going with the flow: using
+  species-discharge relationships to forecast losses in fish biodiversity,
+  \textit{Ecology}, \textit{87}(8), 1907--1914.
+
+\bibitem[{\textit{Yeakel et~al.}(2014)\textit{Yeakel, Moore, Guimaraes, and
+  Aguiar}}]{Yeakel:2014}
+Yeakel, J. D., J. W.~Moore, P. R.~Guimaraes, and M. A. M. de~Aguiar (2014), Synchronisation and
+  stability in river metapopulation networks, \textit{Ecology Letters},
+  \textit{17}(3), 273--283.
+
+\bibitem[{\textit{Zhang and Wei}(2014)}]{Zhang:2014}
+Zhang, M., and X.~Wei (2014), Alteration of flow regimes caused by large-scale
+  forest disturbance: a case study from a large watershed in the interior of
+  {B}ritish {C}olumbia, {C}anada, \textit{Ecohydrology}, \textit{7}(2),
+  544--556, \doi{10.1002/eco.1374}.
+
+\end{thebibliography}
+
+%\bibliography{/Users/kylechezik/Documents/lit}
+
+\end{document}

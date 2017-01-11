@@ -1,0 +1,208 @@
+---
+title: "Flow Data Organization"
+author: "Kyle Chezik"
+date: "June 24, 2015"
+output: pdf_document
+---
+
+###Load Original Raw Data.
+```{r,echo=FALSE,message=FALSE}
+load("01_Data-Flow-Orig.RData")
+load("01_Data-Wtshd-Orig.RData")
+names(WS.2) = c("Station.ID","Lat","Long","Area")
+head(Flow.2)
+head(WS.2)
+
+PDO = read.csv("http://www.ncdc.noaa.gov/teleconnections/pdo/data.csv",skip = 1, header = T)
+PDO = PDO[which(PDO$Date>196912),]
+ENSO = read.csv("http://www.ncdc.noaa.gov/teleconnections/enso/indicators/soi/data.csv",skip = 1, header = T)
+ENSO = ENSO[which(ENSO$Date>196912),]
+
+#Load in libraries.
+library(dplyr);library(plyr);library(tidyr);library(MARSS)
+```
+
+###Subset and Constrain Data
+```{r, echo=FALSE, message=F}
+# Remove Dam Influenced Sites.
+Flow.2 = Flow.2[which(Flow.2$Station.ID %in% c("08JC001","08JC002","08ME002")==F),]
+
+#Limit the HYDAT flow data to years between 1970 and 2007.
+Data = Flow.2[which(as.numeric(format(Flow.2$Date, "%Y"))>=1970 & as.numeric(format(Flow.2$Date, "%Y"))<=2007),]
+# Data <- Data %>% arrange(Station.ID, Date) # ensure correct order
+# Data <- Data %>% group_by(Station.ID) %>%
+	# mutate(gap = c(NA, Date[2:n()] - Date[1:(n() - 1)])) %>%
+	# mutate(any_NAs = ifelse(max(gap > 1, na.rm = TRUE), TRUE, FALSE)) %>%
+	# mutate(long_NA_string = ifelse(max(gap > 7, na.rm = TRUE), TRUE, FALSE)) %>%
+	# as.data.frame()
+
+#Split up the date for processesing.
+Data$Year = as.numeric(format(Data$Date,"%Y")) #Add a column for the year.
+Data$nMonth = as.numeric(format(Data$Date,"%m")) #Add a column for the month.
+Data$Month = as.factor(format(Data$Date,"%b")) #Add a column for the month.
+Data$Day = as.numeric(format(Data$Date,"%d")) #Add a column for the day.
+Data$DOY = as.numeric(format(Data$Date,"%j")) #Add a column for the day.
+head(Data)
+
+#Create a series of dates between January 1st of 1970 and December 31st of 2007. This will be used as a ruler for determining missing days in each month of each year.
+Date.Cont = seq(as.Date("1970-01-01"), as.Date("2007-12-31"), by = "day")
+
+#Determine the number of days missing in each month of each year by flow gauge station (DIMM = Days In Month Missing).
+years.continuous <- as.numeric(format(Date.Cont,"%Y"))
+months.continuous <- as.numeric(format(Date.Cont,"%m"))
+DIMM <- Data %>% group_by(Station.ID, Year, Month) %>%
+	dplyr::summarise(Days.Missing =
+			length(Date.Cont[which(years.continuous == unique(Year) & 
+							  months.continuous == unique(nMonth))]) - n()) %>%
+	as.data.frame()
+
+#Remove months with more then 5 days missing.
+DIM.Limited.Months = DIMM[which(DIMM$Days.Missing<=5),]
+
+#Determine the number of months in each year for each flow gauge site.
+DIM.Limited.Months = ddply(DIM.Limited.Months,c("Station.ID","Year"),function(x){
+	Months = dim(x)[1]
+	data.frame(Months)
+})
+
+#Remove years with fewer than 12 months.
+DIM.Limited.Years1 = DIM.Limited.Months[which(DIM.Limited.Months$Months==12),]
+
+#Isolate data with Years that have 12 months in which no month is missing more than 5 days.
+Data = match_df(Data,DIM.Limited.Years1,on = c("Station.ID","Year"))
+
+#Determine the number of years included in each site.
+DIM.Limited.Years2 = ddply(DIM.Limited.Years1,c("Station.ID"),function(x){
+	Years = dim(x)[1]
+	data.frame(Years)
+})
+
+#Remove stations with fewer than 35 years of data.
+Stations.Final = DIM.Limited.Years2[which(DIM.Limited.Years2$Years>=35),]
+
+#Isolate data such that all included sites have at least 35 of the possible 38 years between 1970 and 2007, and each year has 12 full months where each month is missing no more than five days.
+Data = match_df(Data,Stations.Final,on = "Station.ID")
+save(Data,file = "02a_Data_Clean.RData")
+```
+###Create Monthly Dataset
+```{r,echo=F,message=F}
+#Summarise data monthly mean, minnimum and maximums.
+load("02a_Data_Clean.RData")
+M.Data <- Data %>% group_by(Station.ID, Year, nMonth, Month) %>%
+	dplyr::summarise(median.M.flow = median(Flow.Data),
+ 						max.M.flow = max(Flow.Data),
+ 						min.M.flow = min(Flow.Data))
+
+M.Data = left_join(M.Data,WS.2,by = c("Station.ID"))
+
+save(M.Data,file = "03_Data_Monthly.RData")
+```
+###Create Annual Dataset
+```{r,echo=F,message=F}
+#Fill in missing data for the 'day of year' analysis.
+load("02a_Data_Clean.RData") #Load processesed data.
+
+all_expected_dat <- expand.grid(unique(Data$Station.ID), Date.Cont,
+	stringsAsFactors = FALSE)
+names(all_expected_dat) <- c("Station.ID", "Date")
+Data <- left_join(all_expected_dat, Data)
+Data <- Data %>% arrange(Station.ID, Date)
+Data$Year = as.numeric(format(Data$Date,"%Y")) #Add a column for the year.
+Data$nMonth = as.numeric(format(Data$Date,"%m")) #Add a column for the month.
+Data$Month = as.factor(format(Data$Date,"%b")) #Add a column for the month.
+Data$Day = as.numeric(format(Data$Date,"%d")) #Add a column for the day.
+Data$DOY = as.numeric(format(Data$Date,"%j")) #Add a column for the day.
+
+#Determine the number of missing days in each Station, Year, Month combination. Retain those that have more than 0.
+Missing <- Data %>% group_by(Station.ID, Year, Month) %>%
+	dplyr::summarise(Days.Missing =
+    length(Date.Cont[which(years.continuous == unique(Year) & 
+      months.continuous == unique(nMonth))]) - n()) %>%
+	dplyr::filter(Days.Missing > 0)
+
+library(doParallel)
+registerDoParallel(cores = 7)
+#Create a list for each station and year combination where a month is missing data. These lists include data for the year prior and after the year in which data is missing. This creates a vector/dataset in the wide format which is necessary for the auto-regressive state-space model.
+Sites = dlply(Missing,c("Station.ID","Year"),function(x){
+	Period = seq(unique(x$Year)-1,unique(x$Year+1))
+	Site = subset(Data,Station.ID==x$Station.ID & Year%in%Period)
+	Potential.Dates = seq(as.Date(paste(Period[1],"-01-01",sep="")), as.Date(paste(Period[3],"-12-31",sep="")), by = "day")
+	Date.Rule = data.frame(Station.ID = rep(unique(x$Station.ID),length(Potential.Dates)),Date = Potential.Dates)
+	Site.Missing = full_join(Site, Date.Rule, by = c("Date","Station.ID"))
+	Site = spread(Site.Missing[,c(1:3)],Date,Flow.Data)[1,]
+	as.numeric(as.vector(Site[,c(2:ncol(Site))]))
+})
+
+pdf("interpolation-checks-approx.pdf", width = 9, height = 6)
+par(mfrow = c(3, 3), mar = c(3, 3, 1, 1), cex = 0.5)
+plyr::l_ply(Sites, function(i) {
+	ind <- seq_along(i)
+	d <- data.frame(flow = i, ind = ind)
+	d$approx <- approx(d$ind[!is.na(d$flow)], y = log(d$flow[!is.na(d$flow)]),
+		xout = d$ind)$y %>% exp()
+  plot(d$ind, d$flow, type = "o", pch = 20, cex = 0.6)
+  # lines(d$ind, d$approx, col = "blue")
+  pred_nas <- d[which(is.na(d$flow)), c("ind", "approx")]
+  points(pred_nas$ind, pred_nas$approx, col = "red", cex = 1, pch = 20)
+})
+dev.off()
+
+# Interpolate the missing values via a linear interpolation (in log space):
+Preds = ldply(names(Sites),function(x){
+	Year = as.numeric(strsplit(x,split = "\\.")[[1]][2])
+	Site = strsplit(x,split = "\\.")[[1]][1]
+	Potential.Dates = seq(as.Date(paste(Year-1,"-01-01",sep="")), as.Date(paste(Year+1,"-12-31",sep="")), by = "day")
+	x.Dates = Data[which(Data$Station.ID==Site & Data$Year==Year),"Date"]
+	rows = which(Potential.Dates%in%x.Dates==F & as.numeric(format(Potential.Dates,"%Y"))==Year)
+	
+	ind <- seq_along(Sites[[x]])
+	d <- data.frame(flow = Sites[[x]], ind = ind)
+	d$approx <- approx(d$ind[!is.na(d$flow)], y = log(d$flow[!is.na(d$flow)]),
+		xout = d$ind)$y %>% exp()
+	d <- d[rows, ]
+	
+	data.frame(Station.ID = rep(Site,length(rows)),
+		Date = Potential.Dates[rows],
+		Flow.Data = d$approx)
+})
+Preds$Year = as.numeric(format(Preds$Date,"%Y")) #Add a column for the year.
+Preds$nMonth = as.numeric(format(Preds$Date,"%m")) #Add a column for the month.
+Preds$Month = as.factor(format(Preds$Date,"%b")) #Add a column for the month.
+Preds$Day = as.numeric(format(Preds$Date,"%d")) #Add a column for the day.
+Preds$DOY = as.numeric(format(Preds$Date,"%j")) #Add a column for the day.
+
+save(Preds,file = "02b_Missing_Data_Predictions.RData")
+
+#Combine predictions with the original data.
+load("02b_Missing_Data_Predictions.RData")
+Data.Preds = full_join(Data,Preds)
+Data.Preds$Station.ID = as.factor(Data.Preds$Station.ID)
+Data.Preds$Month = as.factor(Data.Preds$Month)
+
+#Summarise annual data by the day of year to half annual flow.
+# Get the row numbers of when cumulative flow volume hits half the total yearly volume:
+accum_flow <- Data.Preds %>%
+	mutate(row_number = 1:length(Year)) %>%
+	group_by(Station.ID, Year) %>%
+	mutate(half_total_flow = sum(Flow.Data) / 2) %>%
+	summarise(row_number = max(row_number[cumsum(Flow.Data) < half_total_flow])) %>%
+	as.data.frame()
+# Select those rows:
+accum_flow <- Data.Preds[accum_flow$row_number, ] %>%
+	inner_join(accum_flow) %>%
+	select(-row_number) %>%
+	rename(DOY2 = DOY)
+Y.Data = left_join(accum_flow, WS.2, by = c("Station.ID"))
+Y.Data$Station.ID = as.factor(Y.Data$Station.ID)
+
+flow.stats = ddply(Data.Preds, c("Station.ID","Year"),summarize,Median.F = median(Flow.Data),Min.F = min(Flow.Data),Max.F = max(Flow.Data))
+Y.Data = left_join(flow.stats,Y.Data, by = c("Station.ID","Year"))
+
+save(Y.Data,file = "03_Data_Annual.RData")
+```
+
+
+
+
+
+

@@ -1,0 +1,96 @@
+---
+title: "Figures"
+author: "Kyle Chezik"
+date: "July 10, 2015"
+output: html_document
+---
+
+Figure 1: A map of the study area, sites and 
+```{r Load Data, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, dependson=c(1,2,5)}
+#Call necessary packages.
+library(rgdal);library(dplyr)
+
+#Load Data
+load("01a_Data-Wtshd-Simple.RData")
+load("03_Data_Annual.RData")
+WS.MetaD = semi_join(WS.MetaD,Y.Data,by = "Station.ID")
+BC.lim <- readOGR(dsn="Albers", layer="BC_Limit_Albers") #Call the BC boundary polygon.
+Fraser.WS = readOGR(dsn="Albers", layer="Fraser_WS_Albers") # Call the Fraser basin polygon.
+
+#Read in the polyline files for the different tributaries.
+Tribs = readOGR(dsn="Albers", layer="Fraser_Tribs_Albers")
+Tribs.5 = subset(Tribs, STRMRDR >4)
+Tribs.6 = subset(Tribs, STRMRDR >5)
+Tribs.7 = subset(Tribs, STRMRDR >6)
+Tribs.8 = subset(Tribs, STRMRDR >7)
+Tribs.9 = subset(Tribs, STRMRDR >8)
+```
+
+```{r Map Plot, echo=FALSE, message=FALSE, warning=FALSE}
+#Create values to describe the size of points that represents relative contributing area.
+WS.MetaD = mutate(WS.MetaD, Area.size = ((((Area-min(Area))/(diff(range(Area))))+0.02)^0.4)*3.5)
+Legend.size = ((with(WS.MetaD, (c(500,1500,10000,100000,200000)-min(Area))/(diff(range(Area))))+0.02)^0.4)*3.5 #Point sizes for area legend.
+Area.legend.values = c("500", "1500", "10000", "100000", "200000") #Values to be displayed in the area legend.
+Area.legend.y = c(1140000, 1090000, 1050000, 1018000, 990000) #x-coordinate locations for area-legend points.
+Area.legend.x = rep(1450000, 5) #y-coordinate location for area-legend points.
+
+
+pdf(file="Fig1_Map2.pdf", bg="white",height=5.5, width =6 ,pointsize=12) #Set pdf arguments.
+
+# Control Panel
+Te.cex = 0.9 #Text size.
+Te.cex.sub = 0.9 #Legend Sub-text size.
+
+par(oma=c(3.25,4.5,0.25,0.25)) #Size of the outer margin surrounding the two plots.
+
+par(family = 'serif', fg = NA, las = 1, mar = c(0.25,0.2,0,0), mex = 1, mfrow = c(1,1))
+plot(BC.lim, ylim = c(480000, 1225000),xlim=c(850000, 1595000), las=1, lwd=0.25, col = "gray") #Plot the BC limits.
+par(fg = "black", cex.axis = Te.cex, mgp = c(4,0.65,0)) # (fg) Add outlines to boarders, (cex.axis) Change size of axis labels, (mgp) Change the axis margin line before the y axis is printed.
+ 	
+utmcoor = SpatialPoints(cbind(X=c(750000,1000000,1250000,1500000,1750000), Y=c(1200000,1000000,800000,600000,400000)), proj4string = CRS("+proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
+longlatcoor = spTransform(utmcoor, CRS("+proj=longlat"))
+long = as.character(round(longlatcoor$X,0))
+labelsX=parse(text=paste(long, "^o ", "*W", sep=""))
+lat = as.character(round(longlatcoor$Y,0))
+labelsY=parse(text=paste(lat, "^o ", "*N", sep=""))
+
+#For BC Albers UTM axis' labels.
+#axis(2, at = c(1200000,1000000,800000,600000,400000), labels = c("1200000","1000000","800000","600000","400000") ,lwd = 0.5, line = 0.2, outer = TRUE) # y-axis.
+#axis(1,at=c(750000,1000000,1250000,1500000,1750000), labels = c("750000","1000000","1250000","1500000","1750000") ,lwd = 0.5, line = 0, outer = TRUE) #x-axis
+
+axis(2, at = c(1200000,1000000,800000,600000,400000), labels = labelsY ,lwd = 0.5, line = 0.2, outer = TRUE) # y-axis.
+axis(1,at=c(750000,1000000,1250000,1500000,1750000), labels = labelsX ,lwd = 0.5, line = 0, outer = TRUE) #x-axis
+
+#For BC Albers axis' labels.
+#mtext("Albers BC UTM Easting", side = 1, line = 2, cex = Te.cex+0.2, outer = TRUE) # x-axis label.
+#mtext("Albers BC UTM Northing", side = 2, line = 4.2, cex = Te.cex+0.2, las = 0, outer = TRUE)  #y-axis label.
+
+mtext("Longitute", side = 1, line = 2, cex = Te.cex+0.2, outer = TRUE) # x-axis label.
+mtext("Latitude", side = 2, line = 3.2, cex = Te.cex+0.2, las = 0, outer = TRUE)  #y-axis label.
+
+par(fg = NA) # Remove outline from boarders/points/text etc.
+plot(Fraser.WS, col="grey25", add=TRUE) #Plot the Fraser watershed area.
+plot(Tribs.5, axes=TRUE, add=TRUE, lwd=0.5, col = "#525252") #Plot tribs...
+plot(Tribs.6, axes=TRUE, add=TRUE, lwd=0.5, col = "#737373")
+plot(Tribs.7, axes=TRUE, add=TRUE, lwd=0.5, col = "#737373")
+plot(Tribs.8, axes=TRUE, add=TRUE, lwd=0.5, col = "#969696")
+plot(Tribs.9, axes=TRUE, add=TRUE, lwd=0.5, col = "#969696")
+
+# plot(Tribs.5, axes=TRUE, add=TRUE, lwd=0.01, col = "#525252") #Plot tribs...
+# plot(Tribs.6, axes=TRUE, add=TRUE, lwd=0.01, col = "#737373")
+# plot(Tribs.7, axes=TRUE, add=TRUE, lwd=0.01, col = "#737373")
+# plot(Tribs.8, axes=TRUE, add=TRUE, lwd=0.01, col = "#969696")
+# plot(Tribs.9, axes=TRUE, add=TRUE, lwd=0.01, col = "#969696")
+
+pt.col = paste("#F2AD00","99",sep = "")
+points(WS.MetaD$UTM_E, WS.MetaD$UTM_N, bg = pt.col, pch = 21, cex = WS.MetaD$Area.size) #Add points...
+Dble.pt = subset(WS.MetaD,Area<50000)
+points(Dble.pt$UTM_E, Dble.pt$UTM_N, bg = pt.col, pch = 21, cex = Dble.pt$Area.size) #Add points again
+
+par(fg = "black") #Add outlines to boarders.
+points(Area.legend.x[c(1:5)], Area.legend.y[c(1:5)], pch = 21, cex = Legend.size[c(5:1)], bg = "black")
+text(Area.legend.x[c(1:5)]+70000, Area.legend.y[c(1:5)], labels = Area.legend.values[c(5:1)], cex = Te.cex-0.1)
+text(1520000, 1180000, labels = expression("      Flow Gauge \n Wtshd Area (km"^2*")"), cex = Te.cex-0.1)
+
+dev.off()
+```
