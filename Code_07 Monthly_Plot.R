@@ -11,10 +11,20 @@ vline = 4
 shade1="99"; shade2="10"
 axisLabCol = "black"
 
-funnel.plots = function(dat, col1="#F2AD00", col2="#67A9CF", col3="#F98400", col4="#FF0000", col5="#525252", pcol="#737373", lcol="#969696",funnel.y = "", axis.L, yaxis.break = F, iter = 200, xaxis = F, d.xaxis = F, pane, xcoord, ycoord, y.axis = F){
+funnel.plots = function(dat, response, col1="#F2AD00", col2="#67A9CF", col3="#F98400", col4="#FF0000", col5="#525252", pcol="#737373", lcol="#969696",funnel.y = "", axis.L, yaxis.break = F, iter = 200, xaxis = F, d.xaxis = F, pane, xcoord, ycoord, y.axis = F){
+	library(tidyverse);library(wesanderson)
+	#browser()
 	
-	#Real Data: Coefficients and Area
-	Real.Dat = dplyr::tbl_df(dat$real_slopes)%>%plyr::mutate(sqrt.Area = sqrt(Area))%>%plyr::arrange(Area)%>%plyr::mutate(., se.upper = slope+se, se.lower = slope-se); Area = sort(dat$real_slopes$Area)
+	#Identify predictor variable data for the given response variable.
+	slot = grep(pattern = response, x = names(dat)); dat = dat[[slot]]
+	#Change predictor variable column name to generic value.
+	column = grep(pattern = response, x = names(dat$real_slopes))
+	names(dat$real_slopes)[column] = "resp"
+	
+	#Real Data: Coefficients and Response Variable isolation and transformation.
+	Real.Dat = dat$real_slopes %>% mutate(sqrt.resp = sqrt(resp)) %>% arrange(resp) %>% 
+		mutate(se.upper = slope+se, se.lower = slope-se)
+	resp = sort(Real.Dat$resp)
 	
 	#Initial Plot Region Parameters
 	par(mar = c(0,5,0.2,0), bg = "white",fg = "white")
@@ -22,7 +32,7 @@ funnel.plots = function(dat, col1="#F2AD00", col2="#67A9CF", col3="#F98400", col
 	#Create Plotting Region
 	ylimits = pretty(range(scale(c(Real.Dat$se.upper,Real.Dat$se.lower),center = dat$real_varexp$intercept,scale = F)))
 	label = round(exp(ylimits*10)*100-100,0)
-	plot(slope~sqrt.Area, xlim = c(0,500), ylim = range(ylimits), xlab = "", ylab = "", axes = F, data = Real.Dat)
+	plot(slope~sqrt.resp, ylim = range(ylimits), xlab = "", ylab = "", axes = F, data = Real.Dat)
 	
 	#Add y-axis and labels
 	#par(fg = "white")
@@ -30,7 +40,7 @@ funnel.plots = function(dat, col1="#F2AD00", col2="#67A9CF", col3="#F98400", col
 	axis(2, lwd = Line.Width, cex.axis = Axis.Label.Size, las = 1, at = ylimits, labels = label, col.axis = axisLabCol)
 	legend("topright", axis.L, bty="n", xjust = 0, cex = Axis.Label.Size)
 	#mtext(axis.L, side=2, line=Lab.Loc, cex = Axis.Label.Size, las = 0)  #y-axis label.
-	if( y.axis == T) {
+	if(y.axis == T) {
 		mtext(funnel.y, side=2, at = 0.05, line=Lab.Loc, cex = Axis.Label.Size, las = 0)  #y-axis label.
 	}
 	
@@ -41,16 +51,16 @@ funnel.plots = function(dat, col1="#F2AD00", col2="#67A9CF", col3="#F98400", col
 	} else axis(1, lwd = Line.Width, tick = TRUE, labels = FALSE, tck = 0)
 	
 	#Add Points and SE to Plotting Region.
-	points(Real.Dat$sqrt.Area,Real.Dat$slope, col = paste(pcol,shade1,sep=""), pch = 16, cex = 1.5)
-	segments(Real.Dat$sqrt.Area,Real.Dat$slope+Real.Dat$se,Real.Dat$sqrt.Area,Real.Dat$slope-Real.Dat$se, col = paste(lcol,shade1,sep=""), lwd = Line.Width)
+	points(Real.Dat$sqrt.resp, Real.Dat$slope, col = paste(pcol,shade1,sep=""), pch = 16, cex = 1.5)
+	segments(Real.Dat$sqrt.resp,Real.Dat$slope+Real.Dat$se,Real.Dat$sqrt.resp,Real.Dat$slope-Real.Dat$se, col = paste(lcol,shade1,sep=""), lwd = Line.Width)
 	segments(0,0,500,0, lty = 2, lwd = Line.Width)
 	
 	#Add Simulation Lines to Plotting Region.
 	line.sims = function(input, col="colour", line.w = Line.W, shade="30"){apply(input,1,function(y){
-		sim_upper = dat$real_varexp$intercept + dat$real_varexp$slope*(sqrt(Area) - mean(sqrt(Area))) + 1.96 * sqrt(dat$real_varexp$sigma^2 * exp(2*(sqrt(Area)/1e3)*y[1]))
-		lines(sqrt(Area), sim_upper, col = paste(col,shade,sep=""), lwd = line.w)
-		sim_lower = dat$real_varexp$intercept + dat$real_varexp$slope*(sqrt(Area) - mean(sqrt(Area))) - 1.96 * sqrt(dat$real_varexp$sigma^2 * exp(2*(sqrt(Area)/1e3)*y[1]))
-		lines(sqrt(Area), sim_lower, col = paste(col,shade,sep=""), lwd = line.w)
+		sim_upper = dat$real_varexp$intercept + dat$real_varexp$slope*(sqrt(resp) - mean(sqrt(resp))) + 1.96 * sqrt(dat$real_varexp$sigma^2 * exp(2*(sqrt(resp)/1e3)*y[1]))
+		lines(sqrt(resp), sim_upper, col = paste(col,shade,sep=""), lwd = line.w)
+		sim_lower = dat$real_varexp$intercept + dat$real_varexp$slope*(sqrt(resp) - mean(sqrt(resp))) - 1.96 * sqrt(dat$real_varexp$sigma^2 * exp(2*(sqrt(resp)/1e3)*y[1]))
+		lines(sqrt(resp), sim_lower, col = paste(col,shade,sep=""), lwd = line.w)
 	})}
 	line.dat = dplyr::sample_n(dat$sim_varexp, iter, weight = abs(varexp)) %>% plyr::arrange(.,.n)
 	ld.up = dplyr::filter(line.dat, varexp > dat[[1]][[1]])
@@ -64,12 +74,19 @@ funnel.plots = function(dat, col1="#F2AD00", col2="#67A9CF", col3="#F98400", col
 	text(500,max(ylimits),labels = pane, pos = 2, cex = Axis.Label.Size)
 }
 
-density_plot = function(data, type, col1="#F2AD00", col2="#67A9CF", col3="#F98400", col4="#FF0000", xlimit, month.lab=FALSE){
+density_plot = function(data, response, type, col1="#F2AD00", col2="#67A9CF", col3="#F98400", col4="#FF0000", xlimit, month.lab=FALSE){
+	#browser()
 	if(type == "int") par(oma = c(4,3.5,0.2,0.2), mar = c(0,0,0.2,0.5))
 	else par(mar = c(0,0.5,0.2,0))
 	Months = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"); count = 1
 	
 	plyr::l_ply(data,function(x){
+		
+		#Identify predictor variable data for the given response variable.
+		slot = grep(pattern = response, x = names(x)); x = x[[slot]]
+		#Change predictor variable column name to generic value.
+		column = grep(pattern = response, x = names(x$real_slopes))
+		names(x$real_slopes)[column] = "resp"
 		
 		if(type == "int"){
 			d = density(x$sim_varexp$intercept)
@@ -78,9 +95,13 @@ density_plot = function(data, type, col1="#F2AD00", col2="#67A9CF", col3="#F9840
 			var.real = x$real_varexp$varexp}
 		
 		d_dat = dplyr::tbl_df(data.frame(var = d$x, dens = d$y))
+		#plot(dens~var, data = d_dat, type="l", xlab = "", ylab = "", las = 1,
+		#		 bty = "n", yaxt = "n", xaxt = "n", xaxs = "i", xlim = xlimit, col = col1,
+		#		 lwd = Line.Width)
 		plot(dens~var, data = d_dat, type="l", xlab = "", ylab = "", las = 1,
-				 bty = "n", yaxt = "n", xaxt = "n", xaxs = "i", xlim = xlimit, col = col1,
+				 bty = "n", yaxt = "n", xaxt = "n", xaxs = "i", col = col1,
 				 lwd = Line.Width)
+				 
 		
 		if(month.lab == T){
 			mtext(Months[count],side=2, line = 2, las = 1, adj = 0)
@@ -103,30 +124,33 @@ density_plot = function(data, type, col1="#F2AD00", col2="#67A9CF", col3="#F9840
 		abline(v = var.real ,col = paste(col2,shade1,sep=""), lwd = vline)
 		abline(v = var.real ,col = paste(col2,shade1,sep=""), lwd = vline)
 		abline(v = 0 ,col = paste("#000000",shade1,sep=""), lwd = 1, lty = "dashed")
-		if(type == "int") axis(1, labels = F, tck = 0, at = c(-0.008,-0.004,0,0.004,0.008,0.012,0.016))
-		else axis(1, labels = F, tck = 0, at = c(-12,-8,-4,0,4))
+		#if(type == "int") axis(1, labels = F, tck = 0, at = c(-0.008,-0.004,0,0.004,0.008,0.012,0.016))
+		#else axis(1, labels = F, tck = 0, at = c(-12,-8,-4,0,4))
+		axis(1, labels = F, tck = 0)
 	})
 	if(type == "int"){
 		label = round(exp(c(-0.008,-0.004,0,0.004,0.008,0.012,0.016)*10)*100-100,0)
-		axis(1, lwd = 0.5, cex.axis = Axis.Label.Size, outer = T, hadj = 1, labels = label, at = c(-0.008,-0.004,0,0.004,0.008,0.012,0.016), col.axis = axisLabCol)
+		#axis(1, lwd = 0.5, cex.axis = Axis.Label.Size, outer = T, hadj = 1, labels = label, at = c(-0.008,-0.004,0,0.004,0.008,0.012,0.016), col.axis = axisLabCol)
+		axis(1, lwd = 0.5, cex.axis = Axis.Label.Size, outer = T, hadj = 1, col.axis = axisLabCol)
 		mtext(expression("Intercept | %Change"%.%"Decade"^-1), side = 1, line = Lab.Loc, cex = Axis.Label.Size)
 	} else{
-		axis(1, lwd = 0.5, cex.axis = Axis.Label.Size, outer = T, hadj = 0.5, labels = c("-12","-8","-4","0","4"), at = c(-12,-8,-4,0,4), cex.axis = Axis.Label.Size, col.axis = axisLabCol)
+		#axis(1, lwd = 0.5, cex.axis = Axis.Label.Size, outer = T, hadj = 0.5, labels = c("-12","-8","-4","0","4"), at = c(-12,-8,-4,0,4), cex.axis = Axis.Label.Size, col.axis = axisLabCol)
+		axis(1, lwd = 0.5, cex.axis = Axis.Label.Size, outer = T, hadj = 0.5, cex.axis = Axis.Label.Size, col.axis = axisLabCol)
 		mtext(expression("Var. Exp. Param. ("*delta*")"), side = 1, line = Lab.Loc, cex = Axis.Label.Size)	
 	}
 }
 	
-	pdf("Fig4_Max-Monthly-Density-Funnel.pdf", width = 11, height = 8.5)
+	#pdf("Fig4_Max-Monthly-Density-Funnel.pdf", width = 11, height = 8.5)
 	layout(cbind(c(1:12),c(1:12),c(1:12),c(1:12),c(13:24),c(13:24),c(13:24),c(13:24),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3))))
 	
-	density_plot(out_max_month, type = "int", xlimit = c(-0.008,0.017), col1 ="#000000", col2 = "#525252",month.lab = T)
-	density_plot(out_max_month, type = "exp", xlimit = c(-12,4))
+	density_plot(out_max_month, "ppt.sd", type = "int", xlimit = c(-0.008,0.017), col1 ="#000000", col2 = "#525252",month.lab = T)
+	density_plot(out_max_month, "ppt.sd", type = "exp", xlimit = c(-12,4))
 	
-	funnel.plots(out_max_month$`2`, y.axis = F, axis.L = "February", pane = "", iter = 500)
-	funnel.plots(out_max_month$`5`, y.axis = F, axis.L = "May", pane = "", iter = 500)
-	funnel.plots(out_max_month$`8`, y.axis = T, funnel.y = expression("Maximum-Flow | %Change"%.%"Decade"^-1), axis.L = "August", pane = "", iter = 500)
-	funnel.plots(out_max_month$`11`, y.axis = F, axis.L = "November", xaxis=T, pane = "", iter = 500)
-	dev.off()
+	funnel.plots(out_max_month$`2`, "ppt.sd", y.axis = F, axis.L = "February", pane = "", iter = 500)
+	funnel.plots(out_max_month$`5`, "ppt.sd", y.axis = F, axis.L = "May", pane = "", iter = 500)
+	funnel.plots(out_max_month$`9`, "ppt.sd", y.axis = T, funnel.y = expression("Maximum-Flow | %Change"%.%"Decade"^-1), axis.L = "September", pane = "", iter = 500)
+	funnel.plots(out_max_month$`11`, "ppt.sd", y.axis = F, axis.L = "November", xaxis=T, pane = "", iter = 500)
+	#dev.off()
 
 pdf("FigS2_Median-Monthly-Density-Funnel.pdf", width = 11, height = 8.5)
 layout(cbind(c(1:12),c(1:12),c(1:12),c(1:12),c(13:24),c(13:24),c(13:24),c(13:24),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3))))
