@@ -1,95 +1,51 @@
-
 *.RData
-
 *.rds
-
 *.csv
-
 *.pdf
-
 *.docx
-
 *.vim
-
 *.Rproj
-
 *.log
-
 *.dbf
-
 *.shp
-
 *.shx
-
 *.csl
-
 *.pages
-
 *.qgs
-
 *.qpj
-
 *.prj
-
 *.fls
-
 *.fdb_latexmk
-
 *.aux
-
 AGU_Journal/guide/notes.txt
-
 AGU_Journal/guide/figsamp.eps
-
 AGU_Journal/guide/agusuppinfosample.tex
-
 AGU_Journal/guide/agujournaltemplate.tex
-
 AGU_Journal/guide/agujournalsample.tex
-
 AGU_Journal/guide/agujournal.cls
-
 AGU_Journal/guide/agufull08.bst
-
 AGU_Journal/agujournal.cls
-
 AGU_Journal/agufull08.bst
-
 Climate_Analysis/pyClimate.py
-
 RNFT - Defunct Code:Plots/03 HYDAT.R
-
 RNFT - Defunct Code:Plots/03 HYDAT.Rmd
-
 RNFT - Defunct Code:Plots/05 HYDAT Arima Exp.R
-
 RNFT - Defunct Code:Plots/06 HYDAT LME Experiment/06 HYDAT LME Exp.R
-
 RNFT - Defunct Code:Plots/06 HYDAT MARSS Experiment/06 HYDAT MARSS Exp.R
-
 RNFT - Defunct Code:Plots/06 HYDAT MARSS Experiment/Test_State_Space.R
-
 RNFT - Defunct Code:Plots/06 Monthly Data Org.R
-
 RNFT - Defunct Code:Plots/07 HYDAT GAMM FINAL.R
-
 RNFT - Defunct Code:Plots/07 HYDAT GAMM FINAL.Rmd
-
 RNFT - Defunct Code:Plots/6-plot-nu-coefs.R
-
 RNFT - Defunct Code:Plots/Code_02 Annual_Linear_Analysis.Rmd
-
 RNFT - Defunct Code:Plots/Code_02 Monthly_GAMM_Analysis Plots.R
-
 RNFT - Defunct Code:Plots/Code_02 Monthly_GAMM_Analysis.R
-
 RNFT - Defunct Code:Plots/Code_02 Monthly_Post_GAMM_Analysis.R
-
 RNFT - Defunct Code:Plots/Code_02 Post_Analysis_Null_Test.R
-
 RNFT - Defunct Code:Plots/Month Data Scaled.R
-
 RNFT - Defunct Code:Plots/null-test.R
-
 RNFT - Defunct Code:Plots/sim.Rmd
 .Rproj.user
+varianceFunction.o
+varianceFunction.so
+.Rhistory
