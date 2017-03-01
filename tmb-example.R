@@ -79,3 +79,7 @@ rep
 # sigma_j -1.327247e+00 0.1735828737
 # sigma_j  5.401138e-01 0.2108288820
 # Maximum gradient component: 0.02134764
+
+library(nlme)
+mod = gls(slope~s1 + s2, data = out_doy2$Area$real_slopes, weights = varComb(varExp(form = ~s1), varExp(form = ~s2)))
+mod = gls(slope~s1 + s2, data = out_doy2$Area$real_slopes, weights = varExp(form = ~s2))
