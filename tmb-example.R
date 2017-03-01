@@ -64,14 +64,14 @@ obj <- MakeADFun(data = list(x_ij = mm, y_i = u),
 opt <- nlminb(start=obj$env$last.par.best, objective=obj$fn, gradient=obj$gr)
 opt$par
 
-#			b_j           b_j           b_j       sigma_j       sigma_j       sigma_j 
+#b_j           b_j           b_j       sigma_j       sigma_j       sigma_j 
 #-2.197504e-03  2.525132e-04  1.253969e-04 -1.308270e+01 -1.327247e+00  5.401138e-01
 
 rep <- sdreport(obj)
 rep
 
 # sdreport(.) result
-# 						Estimate   Std. Error
+# Estimate   Std. Error
 # b_j     -2.197504e-03 0.0004539609
 # b_j      2.525132e-04 0.0001232716
 # b_j      1.253969e-04 0.0002550198
