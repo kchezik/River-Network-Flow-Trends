@@ -35,3 +35,47 @@ opt$par
 # If you need standard errors and therefore confidence intervals... exp(sigma1 + 1.96 * SE)... :
 rep <- sdreport(obj)
 rep
+
+
+
+# Replicate with Fraser Data.
+library(tidyverse)
+load("out_doy2.RData")
+
+#Function for scaling values between 0 and 1.
+zero_one = function(x) ((x-min(x)))/(diff(range(x)))
+#Function for standardizing values.
+std = function(x) (x/sd(x))
+
+u = out_doy2$Area$real_slopes$slope
+s1 = out_doy2$Area$real_slopes %>% mutate(STDsqrtArea = std(sqrt(Area))) %>% .$STDsqrtArea
+s2 = out_doy2$Area$real_slopes %>% select(8:ncol(.)) %>% apply(.,2,function(x) zero_one(x)) %>% 
+	apply(.,1,function(x) sum(x)) %>% std(.)
+mm = model.matrix(~ s1 + s2)
+
+library(TMB)
+compile("varianceFunction.cpp")
+dyn.load(dynlib("varianceFunction"))
+
+obj <- MakeADFun(data = list(x_ij = mm, y_i = u),
+								 parameters = list(b_j = c(0, 0, 0), sigma_j = c(0, 0, 0)),
+								 DLL = "varianceFunction")
+
+opt <- nlminb(start=obj$env$last.par.best, objective=obj$fn, gradient=obj$gr)
+opt$par
+
+#			b_j           b_j           b_j       sigma_j       sigma_j       sigma_j 
+#-2.197504e-03  2.525132e-04  1.253969e-04 -1.308270e+01 -1.327247e+00  5.401138e-01
+
+rep <- sdreport(obj)
+rep
+
+# sdreport(.) result
+# 						Estimate   Std. Error
+# b_j     -2.197504e-03 0.0004539609
+# b_j      2.525132e-04 0.0001232716
+# b_j      1.253969e-04 0.0002550198
+# sigma_j -1.308270e+01 0.4312540804
+# sigma_j -1.327247e+00 0.1735828737
+# sigma_j  5.401138e-01 0.2108288820
+# Maximum gradient component: 0.02134764
