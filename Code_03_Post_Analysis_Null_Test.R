@@ -154,6 +154,48 @@ out_med_month <- plyr::dlply(M.Data, "nMonth", function(x)
 save(out_med_month, file = "med_month.RData")
 
 
+
+
+
+set.seed(123)
+vars = c("Area","emt.sd","ext.sd","map.sd","mat.sd","pas.sd")
+real_slopes = fit_slopes(Y.Data, "DOY2.logit", "Area", vars)
+zero_one = function(x) ((x-min(x)))/(diff(range(x)))
+real_slopes = real_slopes %>% select(8:ncol(real_slopes)) %>% apply(.,2,function(x) zero_one(x)) %>% 
+	apply(.,1,function(x) sum(x)) %>% mutate(real_slopes, std.clim = .)
+real_slopes = real_slopes %>% mutate(area_std = sqrt(Area)/sd(sqrt(Area)), clim_std = std.clim/sd(std.clim))
+
+ m <- gls(slope~sqrt(Area), weights = varExp(form = ~sqrt(area_std)+clim_std),
+				 control = glsControl(maxIter = 1000L, msMaxIter = 1000L), data = real_slopes)
+
+plot(slope~sqrt(Area), real_slopes)
+#Add Simulation Lines to Plotting Region.
+line.sims = function(df, col, LW, shade = "10", transp = T, intercept, slope, resp.sqrt, sigma, varexp){
+	apply(df,1,function(y){
+		if(transp == T) colur = paste(col,shade,sep="")
+		else colur = col
+		upper = intercept + slope*(resp.sqrt - mean(resp.sqrt)) + 1.96 * sqrt(sigma^2 * exp(2*(resp.sqrt/1e3)*y[1]))
+		lines(resp.sqrt, upper, col = colur, lwd = LW)
+		lower = intercept + slope*(resp.sqrt - mean(resp.sqrt)) - 1.96 * sqrt(sigma^2 * exp(2*(resp.sqrt/1e3)*y[1]))
+		lines(resp.sqrt, lower, col = colur, lwd = LW)
+	})}
+
+varexp <- m$model[[1]][[1]][1]
+sigma <- m$sigma
+intercept <- coef(m)[[1]]
+slope = m$coefficients[[2]]
+slopePval = summary(m)[[18]][8]
+df1 = data.frame(varexp, sigma, intercept, slope, slopePval)
+line.sims(df1, "#F2AD00", 2, intercept = df$intercept, slope = df$slope, resp.sqrt = sort(sqrt(real_slopes$Area)), sigma = df$sigma, varexp = df$varexp)
+varexp <- m$model[[1]][[2]][1]
+df2 = data.frame(varexp, sigma, intercept, slope, slopePval)
+line.sims(df2, "#FF0000", 2, intercept = df$intercept, slope = df$slope, resp.sqrt = sort(sqrt(real_slopes$Area)), sigma = df$sigma, varexp = df$varexp)
+
+
+
+
+
+
 ## look at some sample time series:
 p1 <- ggplot(out_med$example_ts, aes(yrs, exp(y))) + geom_line() + facet_wrap(~Station.ID, scales = "free_y")
 ggsave("sim-doy2.pdf", width = 13, height = 10)

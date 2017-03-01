@@ -1,9 +1,11 @@
-
+#########################################################################################################
+################## Plot Annual Flow Trends Against Area and Display Climate Index Data ##################
+#########################################################################################################
 
 #Function for scaling values between 0 and 1.
 zero_one = function(x) ((x-min(x)))/(diff(range(x)))
 
-#Function for simplifying data and adding climate index value.
+#Function for simplifying data and adding climate index values.
 arrange.data = function(df, response){
 	tp = df[[grep(response, names(df))]]$real_slopes
 	tp = tp %>% select(8:ncol(tp)) %>% apply(.,2,function(x) zero_one(x)) %>% 

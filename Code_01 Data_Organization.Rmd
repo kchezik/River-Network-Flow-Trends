@@ -165,10 +165,12 @@ df = Data.Preds %>% group_by(Station.ID) %>% arrange(Date) %>%
 	})
 
 M.Data = left_join(Data.Preds, df, by = c("Station.ID","Date")) %>% 
+	mutate(flow.data_mean = if_else(is.na(.$mean5day), .$Flow.Data, .$mean5day)) %>%
+	select(-mean5day) %>% 
 	group_by(Station.ID, Year, nMonth, Month) %>% 
-	summarise(median.M.flow = median(Flow.Data),
- 						max.M.flow = max(mean5day, na.rm = T),
- 						min.M.flow = min(mean5day, na.rm = T))
+	summarise(median.M.flow = median(flow.data_mean),
+ 						max.M.flow = max(flow.data_mean, na.rm = T),
+ 						min.M.flow = min(flow.data_mean, na.rm = T))
 #Join location and area data to flow data.
 M.Data = left_join(M.Data, WS.2, by = "Station.ID")
 save(M.Data,file = "03_Data_Monthly.RData")
