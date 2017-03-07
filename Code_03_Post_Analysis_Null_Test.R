@@ -1,4 +1,4 @@
-library(tidyverse); library(stringr)
+library(tidyverse); library(stringr);library(attenPlot)
 #Load/Organize Annual Data
 load("03_Data_Annual.RData")
 logit = function(p){log(p/(1-p))}
@@ -20,6 +20,7 @@ for(i in AnnualVars){
 	Y.Data = dplyr::left_join(Y.Data, cDat, by = "Station.ID")
 }
 Y.Data = Y.Data %>% ungroup(); rm(cDat, AnnualVars, i, logit, vars)
+
 #Monthly
 vars = unique(str_extract(string = MonthlyVars, pattern = "([^0-9]){3,}"))
 M.Data = lapply(vars,function(x){
@@ -32,6 +33,10 @@ M.Data = lapply(vars,function(x){
 		M.Data <<- left_join(M.Data, clim, by = c("Station.ID","nMonth"))
 })[[length(vars)]] %>% ungroup()
 rm(vars, MonthlyVars)
+
+remove = c("08MH006","08MH076","08MH090","08MH056","08LG016","08LG048","08MH103","08MH001","08MH016","08MH029")
+M.Data = filter(M.Data, Station.ID%in%remove == F)
+Y.Data = filter(Y.Data, Station.ID%in%remove == F)
 
 setwd("~/sfuvault/Simon_Fraser_University/PhD_Research/Projects/River-Network-Flow-Trends")
 # this function fits slopes to real data
@@ -74,12 +79,25 @@ sim_slopes <- function(slope.dat, yrs, return_ts = FALSE){
 
 # this function fits a gls model with a variance structure for the residual error
 # slopes and area are both vectors
-fit_var <- function(slopes, ind) {
+fit_var <- function(slopes, ind, clim, var2 = F) {
 	scale_factor <- var(slopes)
 	scaled_slope <- slopes / scale_factor
 	x <- sqrt(ind)
 	x <- x - mean(x)
+	v = sqrt(ind)/sd(sqrt(ind))
+	w = clim/sd(clim)
 	tryCatch({
+		if(var2 == T){
+			m <- gls(scaled_slope~x, weights = varComb(varExp(form= ~v), varExp(form= ~w)), 
+							 control = glsControl(maxIter = 1000L, msMaxIter = 1000L))
+			varexpA <- m$model[[1]][[1]][[1]]
+			varexpC <- m$model[[1]][[2]][[1]]
+			sigma <- m$sigma * scale_factor
+			intercept <- coef(m)[[1]] * scale_factor
+			slope = m$coefficients[[2]] * scale_factor
+			slopePval = summary(m)[[18]][8]
+			data.frame(varexpA, varexpC, sigma, intercept, slope, slopePval)
+		}
 		m <- gls(scaled_slope~x, weights = varExp(form= ~sqrt(ind)/1e3), 
 			control = glsControl(maxIter = 1000L, msMaxIter = 1000L))
 		varexp <- m$model[[1]][[1]]
@@ -89,32 +107,41 @@ fit_var <- function(slopes, ind) {
 		slopePval = summary(m)[[18]][8]
 		data.frame(varexp, sigma, intercept, slope, slopePval)
 	}, .error = function(e) {
-		data.frame(varexp = NA, sigma = NA, intercept = NA, slope = NA, slopePval = NA)
+		if(var2 == T)	data.frame(varexpA = NA, varexpC = NA, sigma = NA, intercept = NA, slope = NA, slopePval = NA)
+		if(var2 == F) data.frame(varexp = NA, sigma = NA, intercept = NA, slope = NA, slopePval = NA)
 	})
 }
 
 # wrapper function for analysis of individual predictor variables.
-null_sim <- function(flow.dat, response, pred.var, vars, iter, .parallel){
+null_sim <- function(flow.dat, response, pred.var, var2, vars, iter, .parallel){
   yrs <- unique(flow.dat$Year.Center)
   real_slopes <- fit_slopes(flow.dat, response, pred.var, vars)
+  real_slopes = real_slopes %>% select(8:ncol(.)) %>% apply(., 2, function(x) zero_one(x)) %>% 
+  	apply(., 1, function(x) sum(x)) %>% mutate(real_slopes, std.clim = .)
   example_ts <- sim_slopes(slope.dat = real_slopes, yrs = yrs, return_ts = TRUE)
   sim_varexp <- plyr::ldply(seq_len(iter), function(i){
     simulated_slopes <- sim_slopes(slope.dat = real_slopes, yrs = yrs)
     cols = names(simulated_slopes)
-    out <- fit_var(simulated_slopes$slope_sim, ind = simulated_slopes[,grep(pred.var, cols)])
+    out <- fit_var(simulated_slopes$slope_sim, 
+    							 ind = simulated_slopes[,grep(pred.var, cols)], 
+    							 clim = simulated_slopes[,grep("std.clim", cols)],
+    							 var2 = var2)
     out$.n <- i
     out
   },.progress = "text", .parallel = .parallel)
   cols = names(real_slopes)
-  real_varexp <- fit_var(real_slopes$slope, ind = real_slopes[,grep(pred.var, cols)])
+  real_varexp <- fit_var(real_slopes$slope, 
+  											 ind = real_slopes[,grep(pred.var, cols)],
+  											 clim = real_slopes[,grep("std.clim", cols)],
+  											 var2 = var2)
   list(real_varexp = real_varexp, real_slopes = real_slopes,
     sim_varexp = sim_varexp, example_ts = example_ts)
 }
 
 # wrapper function to run analyses across all predictor variables.
-iter_null_sim <- function(flow.dat, response, pred.vars, vars, iter, .parallel = FALSE){
+iter_null_sim <- function(flow.dat, response, pred.vars, var2, vars, iter, .parallel = FALSE){
 	sapply(pred.vars, function(x){
-		null_sim(flow.dat, response, x, vars, iter, .parallel)
+		null_sim(flow.dat, response, x, var2, vars, iter, .parallel)
 	}, simplify = F, USE.NAMES = T)
 }
 
@@ -122,15 +149,31 @@ doParallel::registerDoParallel(cores = parallel::detectCores()-1)
 
 set.seed(123)
 vars = c("Area","emt.sd","ext.sd","map.sd","mat.sd","pas.sd")
-out_doy2 <- iter_null_sim(Y.Data, "DOY2.logit", "Area", vars, 1000L, T)
-out_min <- iter_null_sim(Y.Data, "log(min.log.sd)", "Aroutea", vars, 1000L, T)
-out_max <- iter_null_sim(Y.Data, "log(max.log.sd)", "Area", vars, 1000L, T)
-out_med <- iter_null_sim(Y.Data, "log(med.log.sd)", "Area", vars, 1000L, T)
+out_doy2 <- iter_null_sim(Y.Data, "DOY2.logit", "Area", F, vars, 1000L, T)
+out_min <- iter_null_sim(Y.Data, "log(min.log.sd)", "Area", F, vars, 1000L, F)
+out_max <- iter_null_sim(Y.Data, "log(max.log.sd)", "Area", F, vars, 1000L, T)
+out_med <- iter_null_sim(Y.Data, "log(med.log.sd)", "Area", F, vars, 1000L, T)
 
-stopifnot(identical(sum(is.na(out_doy2$Area$sim_varexp$varexp)), 0L))
-stopifnot(identical(sum(is.na(out_min$Area$sim_varexp$varexp)), 0L))
-stopifnot(identical(sum(is.na(out_max$Area$sim_varexp$varexp)), 0L))
-stopifnot(identical(sum(is.na(out_med$Area$sim_varexp$varexp)), 0L))
+full = list()
+full[["doy2"]] = out_doy2; full[["max"]] = out_max; full[["min"]] = out_min; full[["med"]] = out_med
+full.t = plyr::ldply(full, function(i){
+	sim = i$Area$sim_varexp %>% select(varexpC, varexpA) %>% gather(.,key = "variable", value = "varexpS")
+	real = i$Area$real_varexp %>% select(varexpC, varexpA) %>% gather(.,key = "variable", value = "varexpR")
+	full = full_join(sim,real,by = "variable")
+	full
+})
+
+ggplot(full.t, aes(varexpS, color = variable)) + geom_density() + geom_vline(aes(xintercept = varexpR, color = variable)) +
+	theme_classic() + facet_wrap(~.id)
+
+stopifnot(identical(sum(is.na(out_doy2$Area$sim_varexp$varexpA)), 0L))
+stopifnot(identical(sum(is.na(out_doy2$Area$sim_varexp$varexpC)), 0L))
+stopifnot(identical(sum(is.na(out_min$Area$sim_varexp$varexpA)), 0L))
+stopifnot(identical(sum(is.na(out_min$Area$sim_varexp$varexpC)), 0L))
+stopifnot(identical(sum(is.na(out_max$Area$sim_varexp$varexpA)), 0L))
+stopifnot(identical(sum(is.na(out_max$Area$sim_varexp$varexpC)), 0L))
+stopifnot(identical(sum(is.na(out_med$Area$sim_varexp$varexpA)), 0L))
+stopifnot(identical(sum(is.na(out_med$Area$sim_varexp$varexpC)), 0L))
 
 save(out_doy2, file = "out_doy2.RData")
 save(out_min, file = "out_min.RData")

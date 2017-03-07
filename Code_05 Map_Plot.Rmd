@@ -8,7 +8,7 @@ output: html_document
 Figure 1: A map of the study area, sites and 
 ```{r Load Data, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, dependson=c(1,2,5)}
 #Call necessary packages.
-library(rgdal);library(dplyr)
+library(rgdal);library(tidyverse);library(sp);library(maptools)
 
 #Load Data
 load("01a_Data-Wtshd-Simple.RData")
@@ -93,4 +93,16 @@ text(Area.legend.x[c(1:5)]+70000, Area.legend.y[c(1:5)], labels = Area.legend.va
 text(1520000, 1180000, labels = expression("      Flow Gauge \n Wtshd Area (km"^2*")"), cex = Te.cex-0.1)
 
 dev.off()
+```
+
+Here I'm simply creating a sites shapefile with the adjusted size values for the point sizes. These will then be used to inform point sizes in QGIS.
+```{r Map Plot, echo=FALSE, message=FALSE, warning=FALSE}
+x = c(seq(1,3.5,by = 0.5),max(WS.MetaD$Area.size))
+round(((((x/3.5)^(1/0.4))-0.02) * diff(range(WS.MetaD$Area)))+min(WS.MetaD$Area),0)
+
+WS.MetaD = mutate(WS.MetaD, Area.size = ((((Area-min(Area))/(diff(range(Area))))+0.02)^0.4)*3.5)
+BCAlbers = CRS("+init=epsg:3005")
+sp = SpatialPointsDataFrame(data = WS.MetaD, coords = WS.MetaD[,c("UTM_E","UTM_N")], proj4string = BCAlbers)
+writeOGR(sp, dsn = "mapPlot", layer = "sites", driver="ESRI Shapefile", overwrite_layer = T, morphToESRI = T)
+
 ```

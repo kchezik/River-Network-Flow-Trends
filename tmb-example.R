@@ -39,31 +39,42 @@ rep
 
 
 # Replicate with Fraser Data.
-library(tidyverse)
+library(tidyverse);library(attenPlot)
+load("03_Data_Annual.RData")
 load("out_doy2.RData")
 load("out_med.RData")
 load("out_max.RData")
 load("out_min.RData")
 
-x = out_med
+remove = c("08MH006","08MH076","08MH090","08MH056","08LG016","08LG048","08MH103","08MH001","08MH016","08MH029")
+x = out_doy2
 
-y = x$Area$real_slopes%>% select(8:ncol(.)) %>% apply(.,2,function(x) zero_one(x)) %>% 
-	apply(.,1,function(x) sum(x)) %>% mutate(x$Area$real_slopes, clim.sd = .) %>%  gather(., climate, index, emt.sd,ext.sd,map.sd,mat.sd,pas.sd,clim.sd)
+y = x$Area$real_slopes %>% select(8:ncol(.)) %>% apply(.,2,function(x) zero_one(x)) %>% 
+	apply(.,1,function(x) sum(x)) %>% mutate(x$Area$real_slopes, clim.sd = .)
+y = Y.Data %>% select(Station.ID, Lat, Long) %>% distinct() %>% left_join(y,., by = "Station.ID")
+
+ggplot(y, aes(log(y$Area), y$clim.sd, color = Lat, label=Station.ID)) + 
+	geom_point() +
+	scale_colour_gradient(low="blue", high = "red") + 
+	geom_text(hjust = 0, nudge_x = 0.05)
+
+y = x$Area$real_slopes
+y = y %>% select(8:ncol(.)) %>% apply(.,2,function(x) zero_one(x)) %>% 
+	apply(.,1,function(x) sum(x)) %>% mutate(y, clim.sd = .) %>%
+	gather(., climate, index, emt.sd,ext.sd,map.sd,mat.sd,pas.sd,clim.sd)
 
 ggplot(y, aes(index, slope)) +
 	geom_point() +
 	facet_wrap(~climate, scales = "free_x")
 
-#Function for scaling values between 0 and 1.
-zero_one = function(x) ((x-min(x)))/(diff(range(x)))
 #Function for standardizing values.
 std = function(x) (x/sd(x))
 
-u = x$Area$real_slopes$slope
-s1 = x$Area$real_slopes %>% mutate(STDsqrtArea = std(sqrt(Area))) %>% .$STDsqrtArea
-s2 = x$Area$real_slopes %>% select(8:ncol(.)) %>% apply(.,2,function(x) zero_one(x)) %>% 
+df = x$Area$real_slopes %>% filter(Station.ID %in% remove == F)
+u = df$slope
+s1 = df %>% mutate(STDsqrtArea = std(sqrt(Area))) %>% .$STDsqrtArea
+s2 = df %>% select(8:ncol(.)) %>% apply(.,2,function(x) zero_one(x)) %>% 
 	apply(.,1,function(x) sum(x)) %>% std(.)
-s2 = x$Area$real_slopes$mat.sd %>% std(.)
 mm = model.matrix(~ s1 + s2)
 
 library(TMB)
