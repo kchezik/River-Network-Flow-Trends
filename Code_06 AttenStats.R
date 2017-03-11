@@ -1,4 +1,8 @@
 #Attenuation Stats.
+load("out_doy2.RData")
+load("out_med.RData")
+load("out_min.RData")
+load("out_max.RData")
 
 #This function finds the predicted attenuation values at any two catchment areas and returns the percent decrease in predicted range values when moving from small catchments to a large catchment.
 pred.F = function(x, Area){
@@ -7,11 +11,11 @@ pred.F = function(x, Area){
 	percent.reduced = (1-sqrt(diff(c(prediction.1[2],prediction.2[2]))^2/diff(c(prediction.1[1],prediction.2[1]))^2))*100
 	data.frame(percent.reduced)}
 
-pred.F(out_max,range(out_max$real_slopes$Area))
-pred.F(out_min,range(out_max$real_slopes$Area))
-pred.F(out_med,range(out_max$real_slopes$Area))
-pred.F(out_doy2,range(out_max$real_slopes$Area))
-pred.F(out_med,c(5000,60000))
+pred.F(out_max$Area,range(out_max$Area$real_slopes$Area))
+pred.F(out_min$Area,range(out_max$Area$real_slopes$Area))
+pred.F(out_med$Area,range(out_max$Area$real_slopes$Area))
+pred.F(out_doy2$Area,range(out_max$Area$real_slopes$Area))
+pred.F(out_med$Area,c(5000,60000))
 
 #This function produces lower and upper range estimates for trend values among smaller catchments (Small_Area) and then at a larger catchment (Large_Area). Values are returned as the percent change per decade.
 pred.F2 = function(x){
@@ -22,9 +26,9 @@ pred.F2 = function(x){
 	lower.est = round((exp(range(lower)*10)-1)*100,2)
 	data.frame(upper.est, lower.est, row.names = c("Small_Area", "Large_Area"))
 	}
-pred.F2(out_max)
-pred.F2(out_min)
-pred.F2(out_med)
+pred.F2(out_max$Area)
+pred.F2(out_min$Area)
+pred.F2(out_med$Area)
 
 ##############################################################
 #     Determine the ratio of observed to null attenuation    #
@@ -38,12 +42,12 @@ ratio_atten = function(varexp_real, varexp_null, area1, area2){
 	#obs / null
 }
 
-Area_Small = min(out_med$real_slopes$Area)
+Area_Small = min(out_med$Area$real_slopes$Area)
 #Area_Small = 5000
-Area_Large = max(out_med$real_slopes$Area)
+Area_Large = max(out_med$Area$real_slopes$Area)
 #Area_Large = 60000
-expReal = out_max$real_varexp$varexp
-expNull = out_max$sim_varexp$varexp
+expReal = out_max$Area$real_varexp$varexp
+expNull = out_max$Area$sim_varexp$varexp
 atten_compare = ratio_atten(expReal,expNull,Area_Small,Area_Large)
 
 #Uncomment the last line of the ratio_atten function before plotting. Also, nice to comment out the print function and the plotting line for computational speed.  

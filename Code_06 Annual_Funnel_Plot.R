@@ -43,7 +43,7 @@ funnel.wrapper = function(dat, response, yaxis.DOY = F, xAxis = T, pane, axis.Ly
 	
 	########################################### Plot Raw Data ##############################################
 	#Set initial plotting parameters
-	par(mar = c(0,5,0.2,0), family = "serif", bg = "white",fg = "white", mgp = c(2,0.7,0))
+	par(mar = c(0,5,0.2,0), family = "serif", bg = "white",fg = "white", mgp = c(2,0.7,0), las = 1)
 	#Determine axis labels.
 	axis.Fun(flow.trends, yaxis.DOY)
 	#Plot initial blank region to be filled.
@@ -92,7 +92,7 @@ load("out_min.RData")
 load("out_max.RData")
 load("out_med.RData")
 
-#pdf("Fig3_Annual-Funnel.pdf", width = 11, height = 8.5)
+pdf("Fig3_Annual-Funnel.pdf", width = 11, height = 8.5)
 annualScreen()
 par(oma = c(4,0,0,0))
 funnel.wrapper(out_doy2, "Area", pane = "a", xAxis = F, yaxis.DOY = T,  
@@ -103,4 +103,4 @@ funnel.wrapper(out_max, "Area", pane = "c",
 							 axis.Ly = expression("Maximum-Flow | %Change"%.%"Decade"^-1))
 funnel.wrapper(out_med, "Area", pane = "d", d.axis = T,
 							 axis.Ly = expression("Median-Flow | %Change"%.%"Decade"^-1))
-#dev.off()
+dev.off()

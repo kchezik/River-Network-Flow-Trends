@@ -15,28 +15,27 @@ AnnualVars = vars[which(nchar(vars) == 3)]
 MonthlyVars = vars[which(nchar(vars) > 3 & nchar(vars)<7)]
 #Annual
 for(i in AnnualVars){
-	cDat = read.table(paste(i,"-stats.txt",sep = ""), header = T, as.is = T) %>% select(file, std)
-	names(cDat) = c("Station.ID", paste(i,".sd", sep = ""))
+	labels = c("Station.ID","count","min","mean","max",paste(i,".sd",sep = ""),"P25","P75")
+	cDat = read_csv(paste(i,"-stats.csv", sep = ""), col_names =  labels) %>% select(1,6)
 	Y.Data = dplyr::left_join(Y.Data, cDat, by = "Station.ID")
 }
-Y.Data = Y.Data %>% ungroup(); rm(cDat, AnnualVars, i, logit, vars)
+Y.Data = Y.Data %>% ungroup(); rm(cDat, AnnualVars, i, logit, vars, labels)
 
 #Monthly
 vars = unique(str_extract(string = MonthlyVars, pattern = "([^0-9]){3,}"))
 M.Data = lapply(vars,function(x){
-	clim = MonthlyVars[grep(pattern = x, MonthlyVars)] %>% paste(.,"-stats.txt", sep = "") %>%
+	clim = MonthlyVars[grep(pattern = x, MonthlyVars)] %>% paste(.,"-stats.csv", sep = "") %>%
 		lapply(., function(y){
-			read_table(y) %>% select(file, std) %>% mutate(nMonth = as.numeric(str_extract(string = y, pattern = "([0-9]{2})")))
+			labels = c("Station.ID","count","min","mean","max",paste(x,".sd", sep = ""),"P25","P75")
+			read_csv(y, col_names = labels) %>% select(1,6) %>% mutate(nMonth = as.numeric(str_extract(string = y, pattern = "([0-9]{2})")))
 		}) %>% bind_rows()
-		
-		names(clim) = c("Station.ID",paste(x,".sd", sep = ""),"nMonth")
 		M.Data <<- left_join(M.Data, clim, by = c("Station.ID","nMonth"))
 })[[length(vars)]] %>% ungroup()
 rm(vars, MonthlyVars)
 
-remove = c("08MH006","08MH076","08MH090","08MH056","08LG016","08LG048","08MH103","08MH001","08MH016","08MH029")
-M.Data = filter(M.Data, Station.ID%in%remove == F)
-Y.Data = filter(Y.Data, Station.ID%in%remove == F)
+#remove = c("08MH006","08MH076")
+#M.Data = filter(M.Data, Station.ID%in%remove == F)
+#Y.Data = filter(Y.Data, Station.ID%in%remove == F)
 
 setwd("~/sfuvault/Simon_Fraser_University/PhD_Research/Projects/River-Network-Flow-Trends")
 # this function fits slopes to real data
@@ -86,9 +85,9 @@ fit_var <- function(slopes, ind, clim, var2 = F) {
 	x <- x - mean(x)
 	v = sqrt(ind)/sd(sqrt(ind))
 	w = clim/sd(clim)
-	tryCatch({
-		if(var2 == T){
-			m <- gls(scaled_slope~x, weights = varComb(varExp(form= ~v), varExp(form= ~w)), 
+	if(var2 == T){
+		tryCatch({
+			m <- gls(scaled_slope~x, weights = varComb(varExp(form = ~v), varExp(form = ~w)),
 							 control = glsControl(maxIter = 1000L, msMaxIter = 1000L))
 			varexpA <- m$model[[1]][[1]][[1]]
 			varexpC <- m$model[[1]][[2]][[1]]
@@ -96,20 +95,26 @@ fit_var <- function(slopes, ind, clim, var2 = F) {
 			intercept <- coef(m)[[1]] * scale_factor
 			slope = m$coefficients[[2]] * scale_factor
 			slopePval = summary(m)[[18]][8]
-			data.frame(varexpA, varexpC, sigma, intercept, slope, slopePval)
-		}
-		m <- gls(scaled_slope~x, weights = varExp(form= ~sqrt(ind)/1e3), 
-			control = glsControl(maxIter = 1000L, msMaxIter = 1000L))
-		varexp <- m$model[[1]][[1]]
-		sigma <- m$sigma * scale_factor
-		intercept <- coef(m)[[1]] * scale_factor
-		slope = m$coefficients[[2]] * scale_factor
-		slopePval = summary(m)[[18]][8]
-		data.frame(varexp, sigma, intercept, slope, slopePval)
-	}, .error = function(e) {
-		if(var2 == T)	data.frame(varexpA = NA, varexpC = NA, sigma = NA, intercept = NA, slope = NA, slopePval = NA)
-		if(var2 == F) data.frame(varexp = NA, sigma = NA, intercept = NA, slope = NA, slopePval = NA)
-	})
+			retrn = data.frame(varexpA, varexpC, sigma, intercept, slope, slopePval)
+		}, .error = function(e) {
+			retrn = data.frame(varexpA = NA, varexpC = NA, sigma = NA, intercept = NA, slope = NA, slopePval = NA)
+		})
+	}
+	if(var2 == F){
+		tryCatch({
+			m <- gls(scaled_slope~x, weights = varExp(form= ~sqrt(ind)/1e3),
+							 control = glsControl(maxIter = 1000L, msMaxIter = 1000L))
+			varexp <- m$model[[1]][[1]]
+			sigma <- m$sigma * scale_factor
+			intercept <- coef(m)[[1]] * scale_factor
+			slope = m$coefficients[[2]] * scale_factor
+			slopePval = summary(m)[[18]][8]
+			retrn = data.frame(varexp, sigma, intercept, slope, slopePval)
+		}, .error = function(e) {
+			retrn = data.frame(varexp = NA, sigma = NA, intercept = NA, slope = NA, slopePval = NA)
+		})
+	}
+	retrn
 }
 
 # wrapper function for analysis of individual predictor variables.
@@ -150,30 +155,14 @@ doParallel::registerDoParallel(cores = parallel::detectCores()-1)
 set.seed(123)
 vars = c("Area","emt.sd","ext.sd","map.sd","mat.sd","pas.sd")
 out_doy2 <- iter_null_sim(Y.Data, "DOY2.logit", "Area", F, vars, 1000L, T)
-out_min <- iter_null_sim(Y.Data, "log(min.log.sd)", "Area", F, vars, 1000L, F)
+out_min <- iter_null_sim(Y.Data, "log(min.log.sd)", "Area", F, vars, 1000L, T)
 out_max <- iter_null_sim(Y.Data, "log(max.log.sd)", "Area", F, vars, 1000L, T)
 out_med <- iter_null_sim(Y.Data, "log(med.log.sd)", "Area", F, vars, 1000L, T)
 
-full = list()
-full[["doy2"]] = out_doy2; full[["max"]] = out_max; full[["min"]] = out_min; full[["med"]] = out_med
-full.t = plyr::ldply(full, function(i){
-	sim = i$Area$sim_varexp %>% select(varexpC, varexpA) %>% gather(.,key = "variable", value = "varexpS")
-	real = i$Area$real_varexp %>% select(varexpC, varexpA) %>% gather(.,key = "variable", value = "varexpR")
-	full = full_join(sim,real,by = "variable")
-	full
-})
-
-ggplot(full.t, aes(varexpS, color = variable)) + geom_density() + geom_vline(aes(xintercept = varexpR, color = variable)) +
-	theme_classic() + facet_wrap(~.id)
-
-stopifnot(identical(sum(is.na(out_doy2$Area$sim_varexp$varexpA)), 0L))
-stopifnot(identical(sum(is.na(out_doy2$Area$sim_varexp$varexpC)), 0L))
-stopifnot(identical(sum(is.na(out_min$Area$sim_varexp$varexpA)), 0L))
-stopifnot(identical(sum(is.na(out_min$Area$sim_varexp$varexpC)), 0L))
-stopifnot(identical(sum(is.na(out_max$Area$sim_varexp$varexpA)), 0L))
-stopifnot(identical(sum(is.na(out_max$Area$sim_varexp$varexpC)), 0L))
-stopifnot(identical(sum(is.na(out_med$Area$sim_varexp$varexpA)), 0L))
-stopifnot(identical(sum(is.na(out_med$Area$sim_varexp$varexpC)), 0L))
+stopifnot(identical(sum(is.na(out_doy2$Area$sim_varexp$varexp)), 0L))
+stopifnot(identical(sum(is.na(out_min$Area$sim_varexp$varexp)), 0L))
+stopifnot(identical(sum(is.na(out_max$Area$sim_varexp$varexp)), 0L))
+stopifnot(identical(sum(is.na(out_med$Area$sim_varexp$varexp)), 0L))
 
 save(out_doy2, file = "out_doy2.RData")
 save(out_min, file = "out_min.RData")
@@ -182,19 +171,36 @@ save(out_med, file = "out_med.RData")
 
 vars = c("Area","pas.sd","ppt.sd","tave.sd","tmax.sd","tmin.sd")
 out_min_month <- plyr::dlply(M.Data, "nMonth", function(x)
-  iter_null_sim(x, "log(min.log.sd)", "Area", vars, iter = 1000L),
+  iter_null_sim(x, "log(min.log.sd)", "Area", F, vars, iter = 1000L),
   .parallel = TRUE, .paropts = list(.packages = "nlme"))
 save(out_min_month, file = "min_month.RData")
 
 out_max_month <- plyr::dlply(M.Data, "nMonth", function(x)
-  iter_null_sim(x, "log(max.log.sd)", "Area", vars, iter = 1000L),
+  iter_null_sim(x, "log(max.log.sd)", "Area", F, vars, iter = 1000L),
   .parallel = TRUE, .paropts = list(.packages = "nlme"))
 save(out_max_month, file = "max_month.RData")
 
 out_med_month <- plyr::dlply(M.Data, "nMonth", function(x)
-  iter_null_sim(x, "log(med.log.sd)", "Area", vars, iter = 1000L),
+  iter_null_sim(x, "log(med.log.sd)", "Area", F, vars, iter = 1000L),
   .parallel = TRUE, .paropts = list(.packages = "nlme"))
 save(out_med_month, file = "med_month.RData")
+
+
+#look at the distribution of exponent values for Area, Climate or both.
+full = list()
+full[["doy2"]] = out_doy2; full[["max"]] = out_max; full[["min"]] = out_min; full[["med"]] = out_med
+full.t = plyr::ldply(full, function(i){
+	#sim = i$Area$sim_varexp %>% select(varexpA, varexpC) %>% gather(.,key = "variable", value = "varexpS")
+	#real = i$Area$real_varexp %>% select(varexpA, varexpC) %>% gather(.,key = "variable", value = "varexpR")
+	sim = i$Area$sim_varexp %>% select(varexp) %>% gather(.,key = "variable", value = "varexpS")
+	real = i$Area$real_varexp %>% select(varexp) %>% gather(.,key = "variable", value = "varexpR")
+	full = full_join(sim,real,by = "variable")
+	full
+})
+
+ggplot(full.t, aes(varexpS, color = variable)) + geom_density() + geom_vline(aes(xintercept = varexpR, color = variable)) +
+	theme_classic() + facet_wrap(~.id)
+####
 
 
 ## look at some sample time series:

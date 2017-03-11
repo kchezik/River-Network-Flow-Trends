@@ -78,9 +78,10 @@ for(i in dir()){
 		
 		#Collect analysis results from clusters and compile into a single object.
 		df4 = collect(df3)
+		browser()
 		df5 = df4 %>% spread(key = measure, value = slope)
-		df %>% select(id1, latitude, longitude, elevation) %>% 
-			left_join(., df5) %>% 
+		df6 = df %>% select(id1, latitude, longitude, elevation) %>% 
+			left_join(.,df5,by="id1") %>% distinct()%>% 
 			write_csv(paste("../trends_split/",i,sep = ""))
 	})
 	rm(df,df1,df2,df3,df4,df5)
