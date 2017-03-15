@@ -88,3 +88,21 @@ ggplot(final, aes(sqrt(Area), slope, colour = label)) +
 ggsave("FigS4_basin_simulation.pdf", width = 11, height = 8.5)
 
 
+#S7 Plot the Climate Portfolio over each month 
+load("out_max_month.RData")
+dat = plyr::ldply(out_max_month, function(x){
+	clim = x$Area$real_slopes$std.clim
+})
+names(dat)[2:56] = out_max_month$`1`$Area$real_slopes$Station.ID
+
+df = gather(dat, key = "Station.ID",value = "value", 2:56)
+df = df %>% group_by(Station.ID) %>% mutate(value.adj = zero_one(value))
+df1 = df %>% mutate(year = 0)
+df2 = df %>% mutate(year = 12)
+df3 = df %>% mutate(year = 24)
+df = bind_rows(df1,df2,df3)
+df = df %>% mutate(time = nMonth + year)
+
+ggplot(df, aes(time, value.adj, color = Station.ID)) + geom_smooth(se = F, span = 1, n = 36) + labs(x = "Month", y = "Cliamte Portfolio") + scale_x_continuous(breaks = c(13:24), limits = c(13,24), labels = as.character(1:12)) + theme_minimal() + theme(legend.position = "none")
+
+ggsave("FigS7_Seasonal_Climate_Portfolio.pdf", width = 11, height = 8.5)

@@ -4,7 +4,8 @@
 \alias{color.gradient}
 \title{Color ramp function.}
 \usage{
-color.gradient(vec, pal = "GnBu", shade = "99")
+color.gradient(vec, pal = "GnBu", shade = "99", monthly = F, min = NA,
+  max = NA)
 }
 \arguments{
 \item{pal}{Requires a character object designating the color pallet to apply. Here we require palletes provided by RColorBrewer and default ot a Green Blue gradient pallet.}

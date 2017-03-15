@@ -80,8 +80,6 @@ drafts/AGU_Journal/guide/figsamp.eps
 
 drafts/AGU_Journal/guide/notes.txt
 
-drafts/PNAS/ms_pnas.tex
-
 drafts/PNAS/pnas/pnas-new.bst
 
 drafts/PNAS/pnas/pnas-new.cls
@@ -91,3 +89,13 @@ drafts/PNAS/pnas/pnas-template-main.tex
 drafts/PNAS/pnas/pnasresearcharticle.sty
 
 drafts/PNAS/pnas/widetext.sty
+
+drafts/PNAS/widetext.sty
+
+drafts/PNAS/pnasresearcharticle.sty
+
+drafts/PNAS/pnas-template-main.tex
+
+drafts/PNAS/pnas-new.bst
+
+drafts/PNAS/pnas-new.cls

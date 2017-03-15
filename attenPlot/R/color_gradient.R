@@ -8,10 +8,12 @@
 #' @export
 #' @examples
 #' color.gradient(vec, pal = "GnBu", shade = "99")
-color.gradient = function(vec, pal = "GnBu", shade = "99"){
+color.gradient = function(vec, pal = "GnBu", shade = "99",monthly = F, min = NA, max = NA){
 	library(RColorBrewer)
 	#vector scaled 0-1 for function
-	col = zero_one(vec)
+	if(monthly == T){
+		col = ((vec-min))/(diff(c(min,max)))
+	} else col = zero_one(vec)
 	#color ramp function
 	gradient = brewer.pal(9, pal)[3:9]
 	FUN = colorRamp(gradient, bias=1)

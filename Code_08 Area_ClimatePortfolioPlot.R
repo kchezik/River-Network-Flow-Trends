@@ -8,7 +8,7 @@ remove = c("08MH006","08MH076")
 #"08MH090","08MH056","08LG016","08LG048","08MH103","08MH001","08MH016","08MH029"
 df$cols[which(df$Station.ID%in%remove)] = "#969696"
 df$loc[which(df$Station.ID%in%remove)] = "coastal"
-ggplot(df,aes(std.clim, slope, color = cols)) + geom_point()
+ggplot(df,aes(exp(std.clim), slope, color = cols)) + geom_point()
 
 #Look at each climate variable and the index against area.
 gather(data = df, key = "climateIndex", value = "IndexValue", emt.sd, ext.sd, map.sd, mat.sd, pas.sd, std.clim) %>% 

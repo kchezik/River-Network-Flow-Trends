@@ -23,3 +23,17 @@ line.sims = function(df, col, LW, shade = "10", transp = T, intercept, slope, re
 		lower = intercept + slope*(resp.sqrt - mean(resp.sqrt)) - 1.96 * sqrt(sigma^2 * exp(2*(resp.sqrt/1e3)*y[1]))
 		lines(resp.sqrt, lower, col = colur, lwd = LW)
 	})}
+
+# line.sims = function(df, col, LW, shade = "10", transp = T, intercept, slope, resp.sqrt, sigma, clim){
+# 	apply(df,1,function(y){
+# 		if(transp == T) colur = paste(col,shade,sep="")
+# 		else colur = col
+# 		v = resp.sqrt/sd(resp.sqrt)
+# 		w = clim/sd(clim)
+# 		upper = intercept + slope*(resp.sqrt - mean(resp.sqrt)) + 1.96 * sqrt(sigma^2 * exp(2*(w*v)*y[1]))
+# 		#upper = predict(loess(upper~resp.sqrt, span = 1))
+# 		lines(resp.sqrt, upper, col = colur, lwd = LW)
+# 		lower = intercept + slope*(resp.sqrt - mean(resp.sqrt)) - 1.96 * sqrt(sigma^2 * exp(2*(w*v)*y[1]))
+# 		#lower = predict(loess(lower~resp.sqrt, span = 1))
+# 		lines(resp.sqrt, lower, col = colur, lwd = LW)
+# 	})}

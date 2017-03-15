@@ -10,8 +10,8 @@
 #
 arrange.data = function(df, response){
 	tp = df[[grep(response, names(df))]]$real_slopes
-	tp = tp %>% select(8:ncol(tp)) %>% apply(.,2,function(x) zero_one(x)) %>% 
-		apply(.,1,function(x) sum(x)) %>% mutate(tp, std.clim = .)
+	#tp = tp %>% select(8:ncol(tp)) %>% apply(.,2,function(x) zero_one(x)) %>% 
+	#	apply(.,1,function(x) sum(x)) %>% mutate(tp, std.clim = .)
 	names(tp)[grep(response,names(tp))] = "resp"
 	tp %>% mutate(sqrt.resp = sqrt(resp)) %>% mutate(se.upper = slope+se, se.lower = slope-se) %>% arrange(resp)
 }

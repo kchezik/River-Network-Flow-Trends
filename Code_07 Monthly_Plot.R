@@ -47,7 +47,7 @@ density_plot = function(data, response, type, xlimit){
 }
 
 #Funnel Plot Wrapper.
-funnel.plots = function(dat, response, yaxis.DOY = F, d.xaxis = F, pane, funnel.y = "", axis.Ly = "", xAxis = F, ylimit = NULL, iter = 200){
+funnel.plots = function(dat, response, yaxis.DOY = F, d.xaxis = F, pane, funnel.y = "", axis.Ly = "", xAxis = F, ylimit = NULL, iter = 200, monthly = F, min = NA, max = NA){
 	library(tidyverse);library(wesanderson)
 	
 	############################################ Prepare Data ###############################################
@@ -60,12 +60,12 @@ funnel.plots = function(dat, response, yaxis.DOY = F, d.xaxis = F, pane, funnel.
 	#Cleanup and arrange observed flow and climate trend data.
 	flow.trends = arrange.data(dat,response)
 	#Create a colour gradient for the climate index values.
-	cols = color.gradient(flow.trends$std.clim)
+	cols = color.gradient(flow.trends$std.clim, monthly = monthly, min = min, max = max)
 	
 	########################################### Plot Raw Data ##############################################
 	
 	#Set initial plotting parameters
-	par(mar = c(0,5,0.2,0), family = "serif", bg = "white",fg = "white")
+	par(mar = c(0,5,0.2,0), family = "serif", bg = "white",fg = "white", las = 1)
 	#Determine axis labels.
 	axis.Fun(flow.trends, yaxis.DOY, ylimit)
 	#Plot initial blank region to be filled.
@@ -107,15 +107,25 @@ funnel.plots = function(dat, response, yaxis.DOY = F, d.xaxis = F, pane, funnel.
 	}
 }
 
+MaxMinClim = function(dat){
+	tp = range(unlist(lapply(dat,function(x){
+		range(x$Area$real_slopes$std.clim)
+	})))
+	minC <<- tp[1]
+	maxC <<- tp[2]
+}
+
+
 load("max_month.RData")
+MaxMinClim(out_max_month)
 #pdf("Fig4_Max-Monthly-Density-Funnel.pdf", width = 11, height = 8.5)
 monthlyScreen()
 density_plot(out_max_month, "Area", type = "int", xlimit = c(-0.008,0.017))
 density_plot(out_max_month, "Area", type = "exp", xlimit = c(-12,4))
-funnel.plots(dat = out_max_month$`2`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "February", axis.Ly = NULL, ylimit = c(-0.03,0.025), iter = 500)
-funnel.plots(dat = out_max_month$`5`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "May", axis.Ly = NULL, ylimit = c(-0.02,0.02), iter = 500)
-funnel.plots(dat = out_max_month$`8`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "August", axis.Ly = NULL, ylimit = c(-0.04,0.02), iter = 500, funnel.y = expression("Maximum-Flow | %Change"%.%"Decade"^-1))
-funnel.plots(dat = out_max_month$`11`, response = "Area", yaxis.DOY = F, xAxis = T, d.xaxis = F, pane = "November", axis.Ly = NULL, ylimit = c(-0.02,0.04), iter = 500)
+funnel.plots(dat = out_max_month$`2`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "February", axis.Ly = NULL, ylimit = c(-0.03,0.025), iter = 500, monthly = T, min = minC, max = maxC)
+funnel.plots(dat = out_max_month$`5`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "May", axis.Ly = NULL, ylimit = c(-0.02,0.02), iter = 500, monthly = T, min = 0.0290354, max = 4.7576590)
+funnel.plots(dat = out_max_month$`8`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "August", axis.Ly = NULL, ylimit = c(-0.04,0.02), iter = 500, funnel.y = expression("Maximum-Flow | %Change"%.%"Decade"^-1), monthly = T, min = minC, max = maxC)
+funnel.plots(dat = out_max_month$`11`, response = "Area", yaxis.DOY = F, xAxis = T, d.xaxis = F, pane = "November", axis.Ly = NULL, ylimit = c(-0.02,0.04), iter = 500, monthly = T, min = minC, max = maxC)
 #dev.off()
 
 load("min_month.RData")
@@ -123,10 +133,10 @@ load("min_month.RData")
 monthlyScreen()
 density_plot(out_min_month, "Area", type = "int", xlimit = c(-0.008,0.017))
 density_plot(out_min_month, "Area", type = "exp", xlimit = c(-12,4))
-funnel.plots(dat = out_min_month$`2`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "February", axis.Ly = NULL, ylimit = c(-0.03,0.025), iter = 500)
-funnel.plots(dat = out_min_month$`5`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "May", axis.Ly = NULL, ylimit = c(-0.025,0.04), iter = 500)
-funnel.plots(dat = out_min_month$`8`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "August", axis.Ly = NULL, ylimit = c(-0.025,0.03), iter = 500, funnel.y = expression("Minimum-Flow | %Change"%.%"Decade"^-1))
-funnel.plots(dat = out_min_month$`11`, response = "Area", yaxis.DOY = F, xAxis = T, d.xaxis = F, pane = "November", axis.Ly = NULL, ylimit = c(-0.02,0.04), iter = 500)
+funnel.plots(dat = out_min_month$`2`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "February", axis.Ly = NULL, ylimit = c(-0.03,0.025), iter = 500, monthly = T, min = minC, max = maxC)
+funnel.plots(dat = out_min_month$`5`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "May", axis.Ly = NULL, ylimit = c(-0.025,0.04), iter = 500, monthly = T, min = minC, max = maxC)
+funnel.plots(dat = out_min_month$`8`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "August", axis.Ly = NULL, ylimit = c(-0.025,0.03), iter = 500, funnel.y = expression("Minimum-Flow | %Change"%.%"Decade"^-1), monthly = T, min = minC, max = maxC)
+funnel.plots(dat = out_min_month$`11`, response = "Area", yaxis.DOY = F, xAxis = T, d.xaxis = F, pane = "November", axis.Ly = NULL, ylimit = c(-0.02,0.04), iter = 500, monthly = T, min = minC, max = maxC)
 #dev.off()
 
 load("med_month.RData")
@@ -134,8 +144,8 @@ load("med_month.RData")
 monthlyScreen()
 density_plot(out_med_month, "Area", type = "int", xlimit = c(-0.008,0.017))
 density_plot(out_med_month, "Area", type = "exp", xlimit = c(-12,4))
-funnel.plots(dat = out_med_month$`2`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "February", axis.Ly = NULL, ylimit = c(-0.025,0.03), iter = 500)
-funnel.plots(dat = out_med_month$`5`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "May", axis.Ly = NULL, ylimit = c(-0.025,0.04),  iter = 500)
-funnel.plots(dat = out_med_month$`8`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "August", axis.Ly = NULL, ylimit = c(-0.025,0.03), iter = 500, funnel.y = expression("Medimum-Flow | %Change"%.%"Decade"^-1))
-funnel.plots(dat = out_med_month$`11`, response = "Area", yaxis.DOY = F, xAxis = T, d.xaxis = F, pane = "November", axis.Ly = NULL, ylimit = c(-0.02,0.04), iter = 500)
+funnel.plots(dat = out_med_month$`2`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "February", axis.Ly = NULL, ylimit = c(-0.025,0.03), iter = 500, monthly = T, min = minC, max = maxC)
+funnel.plots(dat = out_med_month$`5`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "May", axis.Ly = NULL, ylimit = c(-0.025,0.04),  iter = 500, monthly = T, min = minC, max = maxC)
+funnel.plots(dat = out_med_month$`8`, response = "Area", yaxis.DOY = F, xAxis = F, d.xaxis = F, pane = "August", axis.Ly = NULL, ylimit = c(-0.025,0.03), iter = 500, funnel.y = expression("Medimum-Flow | %Change"%.%"Decade"^-1), monthly = T, min = minC, max = maxC)
+funnel.plots(dat = out_med_month$`11`, response = "Area", yaxis.DOY = F, xAxis = T, d.xaxis = F, pane = "November", axis.Ly = NULL, ylimit = c(-0.02,0.04), iter = 500, monthly = T, min = minC, max = maxC)
 #dev.off()

@@ -3,6 +3,7 @@ load("out_doy2.RData")
 load("out_med.RData")
 load("out_min.RData")
 load("out_max.RData")
+library(tidyverse)
 
 #This function finds the predicted attenuation values at any two catchment areas and returns the percent decrease in predicted range values when moving from small catchments to a large catchment.
 pred.F = function(x, Area){
@@ -46,8 +47,8 @@ Area_Small = min(out_med$Area$real_slopes$Area)
 #Area_Small = 5000
 Area_Large = max(out_med$Area$real_slopes$Area)
 #Area_Large = 60000
-expReal = out_max$Area$real_varexp$varexp
-expNull = out_max$Area$sim_varexp$varexp
+expReal = out_med$Area$real_varexp$varexp
+expNull = out_med$Area$sim_varexp$varexp
 atten_compare = ratio_atten(expReal,expNull,Area_Small,Area_Large)
 
 #Uncomment the last line of the ratio_atten function before plotting. Also, nice to comment out the print function and the plotting line for computational speed.  
@@ -77,7 +78,7 @@ Y.Data = plyr::ddply(Y.Data,"Station.ID",plyr::mutate, med.log.sd = scale(Median
 #function to predict doy to half annual flow given slope, intercept and year.
 logit.pred = function(slope, intercept, year.center){data.frame(pred.points = plogis(intercept+slope*year.center))}
 #expand the slope/intercept data so each site has a row for each year.
-new.dat = expand.grid(Station.ID = out_doy2$real_slopes$Station.ID, year.center = sort(unique(Y.Data$Year.Center))) %>% inner_join(out_doy2$real_slopes)
+new.dat = expand.grid(Station.ID = out_doy2$Area$real_slopes$Station.ID, year.center = sort(unique(Y.Data$Year.Center))) %>% inner_join(out_doy2$Area$real_slopes)
 #apply the logit.pred function to the new.dat dataframe.
 for.plot = plyr::mdply(select(new.dat, intercept, slope, year.center), logit.pred)
 #add the station.id to the predicted data.
@@ -88,10 +89,10 @@ ggplot(for.plot, aes(year.center, pred.points*365, group = station.id))+
 	theme_classic()
 
 #isolate the doy gls coefficients.
-varexp = out_doy2$real_varexp$varexp
-sigma = out_doy2$real_varexp$sigma
-slope = out_doy2$real_varexp$slope
-intercept = out_doy2$real_varexp$intercept
+varexp = out_doy2$Area$real_varexp$varexp
+sigma = out_doy2$Area$real_varexp$sigma
+slope = out_doy2$Area$real_varexp$slope
+intercept = out_doy2$Area$real_varexp$intercept
 area = sort(unique(Y.Data$Area))
 
 #predict slope function
@@ -107,13 +108,13 @@ get_2decade_change <- function(m) (plogis(m*19)-plogis(m*-18))*365
 
 ##### Stashed changes
 
-m <- median(out_doy2$real_slopes$slope)
+m <- median(out_doy2$Area$real_slopes$slope)
 get_2decade_change(m)
 
-m <- max(out_doy2$real_slopes$slope)
+m <- max(out_doy2$Area$real_slopes$slope)
 get_2decade_change(m)
 
-m <- min(out_doy2$real_slopes$slope)
+m <- min(out_doy2$Area$real_slopes$slope)
 get_2decade_change(m)
 
 get_2decade_change(pred.slopes$slope.upper)
@@ -122,3 +123,10 @@ pred.slopes$slope.upper/4*38*365
 get_2decade_change(pred.slopes$slope.lower)
 pred.slopes$slope.lower/4*38*365
 
+
+
+load("max_month.RData")
+load("min_month.RData")
+load("med_month.RData")
+#Determine the regional flow trend for the entire Fraser Basin.
+round(exp(out_max_month$`3`$Area$real_varexp$intercept*10)*100-100,0)

@@ -33,10 +33,6 @@ M.Data = lapply(vars,function(x){
 })[[length(vars)]] %>% ungroup()
 rm(vars, MonthlyVars)
 
-#remove = c("08MH006","08MH076")
-#M.Data = filter(M.Data, Station.ID%in%remove == F)
-#Y.Data = filter(Y.Data, Station.ID%in%remove == F)
-
 setwd("~/sfuvault/Simon_Fraser_University/PhD_Research/Projects/River-Network-Flow-Trends")
 # this function fits slopes to real data
 fit_slopes <- function(flow.dat, response, pred.var, vars) {
@@ -87,7 +83,8 @@ fit_var <- function(slopes, ind, clim, var2 = F) {
 	w = clim/sd(clim)
 	if(var2 == T){
 		tryCatch({
-			m <- gls(scaled_slope~x, weights = varComb(varExp(form = ~v), varExp(form = ~w)),
+			#m <- gls(scaled_slope~x, weights = varComb(varExp(form = ~v), varExp(form = ~w)),
+			m <- gls(scaled_slope~x, weights = varComb(varExp(form= ~exp(clim)),varExp(form= ~sqrt(ind)/1e3)),
 							 control = glsControl(maxIter = 1000L, msMaxIter = 1000L))
 			varexpA <- m$model[[1]][[1]][[1]]
 			varexpC <- m$model[[1]][[2]][[1]]
@@ -103,6 +100,7 @@ fit_var <- function(slopes, ind, clim, var2 = F) {
 	if(var2 == F){
 		tryCatch({
 			m <- gls(scaled_slope~x, weights = varExp(form= ~sqrt(ind)/1e3),
+			#m <- gls(scaled_slope~x, weights = varExp(form= ~exp(clim)),
 							 control = glsControl(maxIter = 1000L, msMaxIter = 1000L))
 			varexp <- m$model[[1]][[1]]
 			sigma <- m$sigma * scale_factor
@@ -157,7 +155,7 @@ vars = c("Area","emt.sd","ext.sd","map.sd","mat.sd","pas.sd")
 out_doy2 <- iter_null_sim(Y.Data, "DOY2.logit", "Area", F, vars, 1000L, T)
 out_min <- iter_null_sim(Y.Data, "log(min.log.sd)", "Area", F, vars, 1000L, T)
 out_max <- iter_null_sim(Y.Data, "log(max.log.sd)", "Area", F, vars, 1000L, T)
-out_med <- iter_null_sim(Y.Data, "log(med.log.sd)", "Area", F, vars, 1000L, T)
+out_med <- iter_null_sim(Y.Data, "log(med.log.sd)", "Area", T, vars, 1000L, F)
 
 stopifnot(identical(sum(is.na(out_doy2$Area$sim_varexp$varexp)), 0L))
 stopifnot(identical(sum(is.na(out_min$Area$sim_varexp$varexp)), 0L))
@@ -190,10 +188,10 @@ save(out_med_month, file = "med_month.RData")
 full = list()
 full[["doy2"]] = out_doy2; full[["max"]] = out_max; full[["min"]] = out_min; full[["med"]] = out_med
 full.t = plyr::ldply(full, function(i){
-	#sim = i$Area$sim_varexp %>% select(varexpA, varexpC) %>% gather(.,key = "variable", value = "varexpS")
-	#real = i$Area$real_varexp %>% select(varexpA, varexpC) %>% gather(.,key = "variable", value = "varexpR")
-	sim = i$Area$sim_varexp %>% select(varexp) %>% gather(.,key = "variable", value = "varexpS")
-	real = i$Area$real_varexp %>% select(varexp) %>% gather(.,key = "variable", value = "varexpR")
+	sim = i$Area$sim_varexp %>% select(varexpA, varexpC) %>% gather(.,key = "variable", value = "varexpS")
+	real = i$Area$real_varexp %>% select(varexpA, varexpC) %>% gather(.,key = "variable", value = "varexpR")
+	#sim = i$Area$sim_varexp %>% select(varexp) %>% gather(.,key = "variable", value = "varexpS")
+	#real = i$Area$real_varexp %>% select(varexp) %>% gather(.,key = "variable", value = "varexpR")
 	full = full_join(sim,real,by = "variable")
 	full
 })
