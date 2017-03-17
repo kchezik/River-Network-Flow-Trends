@@ -1,6 +1,6 @@
 #LaTex Makefile
 
-filename= ms_Geo_Let_Sup
+filename= Chezik_PNAS_MS
 $(filename).pdf: $(filename).tex
 	latexmk -pdf -quiet -f $(filename)
 
