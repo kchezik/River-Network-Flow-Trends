@@ -1,11 +1,4 @@
-#LaTex Makefile
+all: pdf
 
-filename= Chezik_PNAS_MS
-$(filename).pdf: $(filename).tex
-	latexmk -pdf -quiet -f $(filename)
-
-clean:
-	rm -f $(filename).{aux,log,fls,fdb_latexmk,ps,dvi,blg,out,bbl}
-
-cleanall:
-	rm -f $(filename).{aux,log,fls,fdb_latexmk,ps,dvi,blg,out,bbl,pdf}
+pdf:
+	pandoc -H options.sty -s -S -V fontsize=11pt --bibliography=ms.bib --csl=nature.csl --latex-engine=pdflatex Chezik_PNAS_MS.md -o Chezik_PNAS_MS.docx
