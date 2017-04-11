@@ -4,7 +4,7 @@
 \alias{axis.Draw}
 \title{Draw x and y axis.}
 \usage{
-axis.Draw(LW, ALS, ALY, LL, YLim, YLab, xAxis = F)
+axis.Draw(LW, ALS, ALY, LL, YLim, YLab, xAxis = F, ALabS = ALS)
 }
 \arguments{
 \item{LW}{Requires a numeric that defines the line width.}

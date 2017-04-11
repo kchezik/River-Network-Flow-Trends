@@ -4,7 +4,7 @@
 \alias{pointsSE}
 \title{Add Points and Standard Errors}
 \usage{
-pointsSE(df, lcol = "#969696", cols, LW, shade = "99")
+pointsSE(df, lcol = "#969696", cols, LW, shade = "99", ptsize = 1)
 }
 \arguments{
 \item{df}{Requires a dataframe with slope (slope), standard error (se) and sqrt reponse variable (sqrt.resp) columns. The sqrt.resp variable column should be produced by the arrange.data() function.}

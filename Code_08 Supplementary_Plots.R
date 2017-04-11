@@ -1,12 +1,12 @@
 #supplementary plots
-library(dplyr)
+library(tidyverse);library(attenPlot)
 load("out_med.RData")
 load("03_Data_Annual.RData")
 logit = function(p){log(p/(1-p))}
 Y.Data = plyr::ddply(Y.Data,"Station.ID",plyr::mutate, med.log.sd = scale(Median.F, center = F), max.log.sd = scale(Max.F, center = F), min.log.sd = scale(Min.F, center = F), DOY2.logit = logit(DOY2/365), Year.Center = Year-1988)
 
 
-dat_sim = out_med$example_ts; names(dat_sim)[2] = "Year.Center"
+dat_sim = out_med$Area$example_ts; names(dat_sim)[2] = "Year.Center"
 dat = dplyr::left_join(dat_sim, Y.Data, by = c("Station.ID", "Year.Center"))
 Adjuster = Y.Data %>%
 	group_by(Station.ID) %>%
@@ -25,7 +25,7 @@ ggplot(dat, aes(Year, med_sim_unscale)) +
 	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm")) +
 	labs(x = "Year", y = expression("Simulated & Observed Annual Median-Flow (m"^3%.%"sec"^-1*")"%.%"year"^-1))
 
-ggsave("FigS3_site_simulation.pdf", width = 11, height = 8.5)
+ggsave("FigS3_SiteSim.pdf", width = 11, height = 8.5)
 
 #clean up NA's in simulated data where no observed data existed.
 dat$Area = apply(dat, 1, function(x){
@@ -58,13 +58,18 @@ m = gls(slope~sqrt(Area), data = sim_out, weights = varExp(form= ~sqrt(Area)/1e3
 							control = glsControl(maxIter = 1000L, msMaxIter = 1000L))
 varexp <- m$model[[1]][[1]]; sigma <- m$sigma; intercept <- coef(m)[[1]]; slope = m$coefficients[[2]]; sim_varexp = data.frame(varexp, sigma, intercept, slope)
 
-var_upper = out_med$real_varexp$intercept + out_med$real_varexp$slope*(sqrt(sim_out$Area) - mean(sqrt(sim_out$Area))) + 1.96 * sqrt(out_med$real_varexp$sigma^2 * exp(2*(sqrt(sim_out$Area)/1e3)*sim_varexp$varexp))
-var_lower = out_med$real_varexp$intercept + out_med$real_varexp$slope*(sqrt(sim_out$Area) - mean(sqrt(sim_out$Area))) - 1.96 * sqrt(out_med$real_varexp$sigma^2 * exp(2*(sqrt(sim_out$Area)/1e3)*sim_varexp$varexp))
+rInt = out_med$Area$real_varexp$intercept
+rSlope = out_med$Area$real_varexp$slope
+rSigma = out_med$Area$real_varexp$sigma
+rVarexp = out_med$Area$real_varexp$varexp
+
+var_upper = rInt + rSlope*(sqrt(sim_out$Area) - mean(sqrt(sim_out$Area))) + 1.96 * sqrt(rSigma^2 * exp(2*(sqrt(sim_out$Area)/1e3)*sim_varexp$varexp))
+var_lower = rInt + rSlope*(sqrt(sim_out$Area) - mean(sqrt(sim_out$Area))) - 1.96 * sqrt(rSigma^2 * exp(2*(sqrt(sim_out$Area)/1e3)*sim_varexp$varexp))
 sim_out = sim_out %>% mutate(label = rep('sim',nrow(sim_out)), var_upper, var_lower)
 
-var_upper = out_med$real_varexp$intercept + out_med$real_varexp$slope*(sqrt(sim_out$Area) - mean(sqrt(sim_out$Area))) + 1.96 * sqrt(out_med$real_varexp$sigma^2 * exp(2*(sqrt(sim_out$Area)/1e3)*out_med$real_varexp$varexp))
-var_lower = out_med$real_varexp$intercept + out_med$real_varexp$slope*(sqrt(sim_out$Area) - mean(sqrt(sim_out$Area))) - 1.96 * sqrt(out_med$real_varexp$sigma^2 * exp(2*(sqrt(sim_out$Area)/1e3)*out_med$real_varexp$varexp))
-real_out = out_med$real_slopes %>% mutate(label = rep('real',nrow(out_med$real_slopes)), var_upper, var_lower)
+var_upper = rInt + rSlope*(sqrt(sim_out$Area) - mean(sqrt(sim_out$Area))) + 1.96 * sqrt(rSigma^2 * exp(2*(sqrt(sim_out$Area)/1e3)*rVarexp))
+var_lower = rInt + rSlope*(sqrt(sim_out$Area) - mean(sqrt(sim_out$Area))) - 1.96 * sqrt(rSigma^2 * exp(2*(sqrt(sim_out$Area)/1e3)*rVarexp))
+real_out = out_med$Area$real_slopes %>% mutate(label = rep('real',nrow(out_med$Area$real_slopes)), var_upper, var_lower)
 
 final = bind_rows(sim_out, real_out)
 
@@ -85,24 +90,4 @@ ggplot(final, aes(sqrt(Area), slope, colour = label)) +
 	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm")) +
 	labs(y = expression("Median-Flow | %Change"%.%"Decade"^-1), x = expression("Area (km"^2*")"))
 
-ggsave("FigS4_basin_simulation.pdf", width = 11, height = 8.5)
-
-
-#S7 Plot the Climate Portfolio over each month 
-load("out_max_month.RData")
-dat = plyr::ldply(out_max_month, function(x){
-	clim = x$Area$real_slopes$std.clim
-})
-names(dat)[2:56] = out_max_month$`1`$Area$real_slopes$Station.ID
-
-df = gather(dat, key = "Station.ID",value = "value", 2:56)
-df = df %>% group_by(Station.ID) %>% mutate(value.adj = zero_one(value))
-df1 = df %>% mutate(year = 0)
-df2 = df %>% mutate(year = 12)
-df3 = df %>% mutate(year = 24)
-df = bind_rows(df1,df2,df3)
-df = df %>% mutate(time = nMonth + year)
-
-ggplot(df, aes(time, value.adj, color = Station.ID)) + geom_smooth(se = F, span = 1, n = 36) + labs(x = "Month", y = "Cliamte Portfolio") + scale_x_continuous(breaks = c(13:24), limits = c(13,24), labels = as.character(1:12)) + theme_minimal() + theme(legend.position = "none")
-
-ggsave("FigS7_Seasonal_Climate_Portfolio.pdf", width = 11, height = 8.5)
+ggsave("FigS4_BasinSim.pdf", width = 11, height = 8.5)

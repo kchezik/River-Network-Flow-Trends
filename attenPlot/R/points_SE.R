@@ -10,9 +10,9 @@
 #' @export
 #' @examples
 #' points.SE(df, lcol = "#969696", cols = cols, LW = 1, shade = "99")
-pointsSE = function(df, lcol ="#969696", cols, LW, shade = "99"){
+pointsSE = function(df, lcol ="#969696", cols, LW, shade = "99", ptsize = 1){
 	segments(df$sqrt.resp, df$slope+df$se, df$sqrt.resp, df$slope-df$se,
 					 col = paste(lcol, shade, sep = ""), lwd = LW)
 	segments(0,0,500,0, lty = 2, lwd = LW)
-	points(df$sqrt.resp, df$slope, col = cols, pch = 16, cex = 1.5)
+	points(df$sqrt.resp, df$slope, col = cols, pch = 16, cex = ptsize)
 }

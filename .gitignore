@@ -1,101 +1,30 @@
-*.RData
-*.rds
-*.csv
-*.pdf
-*.docx
-*.vim
 *.Rproj
-*.log
-*.dbf
-*.shp
-*.shx
-*.csl
-*.pages
-*.qgs
-*.qpj
-*.prj
-*.fls
-*.fdb_latexmk
-*.aux
-AGU_Journal/guide/notes.txt
-AGU_Journal/guide/figsamp.eps
-AGU_Journal/guide/agusuppinfosample.tex
-AGU_Journal/guide/agujournaltemplate.tex
-AGU_Journal/guide/agujournalsample.tex
-AGU_Journal/guide/agujournal.cls
-AGU_Journal/guide/agufull08.bst
-AGU_Journal/agujournal.cls
-AGU_Journal/agufull08.bst
-Climate_Analysis/pyClimate.py
-RNFT - Defunct Code:Plots/03 HYDAT.R
-RNFT - Defunct Code:Plots/03 HYDAT.Rmd
-RNFT - Defunct Code:Plots/05 HYDAT Arima Exp.R
-RNFT - Defunct Code:Plots/06 HYDAT LME Experiment/06 HYDAT LME Exp.R
-RNFT - Defunct Code:Plots/06 HYDAT MARSS Experiment/06 HYDAT MARSS Exp.R
-RNFT - Defunct Code:Plots/06 HYDAT MARSS Experiment/Test_State_Space.R
-RNFT - Defunct Code:Plots/06 Monthly Data Org.R
-RNFT - Defunct Code:Plots/07 HYDAT GAMM FINAL.R
-RNFT - Defunct Code:Plots/07 HYDAT GAMM FINAL.Rmd
-RNFT - Defunct Code:Plots/6-plot-nu-coefs.R
-RNFT - Defunct Code:Plots/Code_02 Annual_Linear_Analysis.Rmd
-RNFT - Defunct Code:Plots/Code_02 Monthly_GAMM_Analysis Plots.R
-RNFT - Defunct Code:Plots/Code_02 Monthly_GAMM_Analysis.R
-RNFT - Defunct Code:Plots/Code_02 Monthly_Post_GAMM_Analysis.R
-RNFT - Defunct Code:Plots/Code_02 Post_Analysis_Null_Test.R
-RNFT - Defunct Code:Plots/Month Data Scaled.R
-RNFT - Defunct Code:Plots/null-test.R
-RNFT - Defunct Code:Plots/sim.Rmd
-.Rproj.user
-varianceFunction.o
-varianceFunction.so
+*.Rproj*
+*.csv
 .Rhistory
-
-.Rhistory
-
-*.png
-
-*.tif
-
-*.qgs~
-
-*.xml
-
-*.qpt
-
-drafts/AGU_Journal/agufull08.bst
-
-drafts/AGU_Journal/agujournal.cls
-
-drafts/AGU_Journal/guide/agufull08.bst
-
-drafts/AGU_Journal/guide/agujournal.cls
-
-drafts/AGU_Journal/guide/agujournalsample.tex
-
-drafts/AGU_Journal/guide/agujournaltemplate.tex
-
-drafts/AGU_Journal/guide/agusuppinfosample.tex
-
-drafts/AGU_Journal/guide/figsamp.eps
-
-drafts/AGU_Journal/guide/notes.txt
-
-drafts/PNAS/pnas/pnas-new.bst
-
-drafts/PNAS/pnas/pnas-new.cls
-
-drafts/PNAS/pnas/pnas-template-main.tex
-
-drafts/PNAS/pnas/pnasresearcharticle.sty
-
-drafts/PNAS/pnas/widetext.sty
-
-drafts/PNAS/widetext.sty
-
-drafts/PNAS/pnasresearcharticle.sty
-
-drafts/PNAS/pnas-template-main.tex
-
-drafts/PNAS/pnas-new.bst
-
-drafts/PNAS/pnas-new.cls
+01a_Data-Wtshd-Simple.RData
+02a_Data_Clean.RData
+02b_Missing_Data_Predictions.RData
+03_Data_Annual.RData
+03_Data_Monthly.RData
+max_month.RData
+med_month.RData
+min_month.RData
+out_doy2.RData
+out_max.RData
+out_med.RData
+out_min.RData
+defunct_code/
+drafts/AGU_Journal/
+drafts/Nature\ Climate\ Change/
+drafts/*pdf
+mapPlot/
+drafts/PNAS/authorInformation/
+drafts/PNAS/Jon_Sean_Edits/
+drafts/PNAS/*pdf
+drafts/PNAS/pnas*
+drafts/PNAS/*.vim
+drafts/PNAS/*.sty
+drafts/PNAS/Chezik_PNAS_MS.xwm
+drafts/PNAS/Chezik_PNAS_SI.xwm
+*xwm

@@ -28,9 +28,9 @@ plygnPrptns = function(df, type, varR, varS, annual = F, col1="#F2AD00", col2 = 
 		prop = round(sum(varR<varS)/length(varS),2)
 		if(annual == T) {
 			text(2,max(df$dens)/2,
-					 labels = as.character(prop), cex = 1.1)
-			text(-8,max(df$dens)/2,
-					 labels = as.character(round(1-prop,2)), cex = 1.1)
-		} else mtext(prop, side = 3, adj = 0.05, line = -1.3, cex = 0.75)
+					 labels = as.character(prop), cex = 0.8)
+			text(-8.25,max(df$dens)/2,
+					 labels = as.character(round(1-prop,2)), cex = 0.8)
+		} else mtext(prop, side = 3, adj = 0.05, line = -1.3, cex = 0.5)
 	}
 }

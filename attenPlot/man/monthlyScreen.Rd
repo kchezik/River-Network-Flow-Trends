@@ -4,7 +4,7 @@
 \alias{monthlyScreen}
 \title{Break Up Canvas}
 \usage{
-monthlyScreen()
+monthlyScreen(IntExp = 4, Atten = 5)
 }
 \arguments{
 \item{empty}{No arguments required.}

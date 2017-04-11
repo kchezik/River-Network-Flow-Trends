@@ -6,7 +6,7 @@
 #' @export
 #' @examples
 #' zero_one()
-monthlyScreen = function(){layout(cbind(c(1:12),c(1:12),c(1:12),c(1:12),c(13:24),c(13:24),c(13:24),c(13:24),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)),c(rep(25,3),rep(26,3),rep(27,3),rep(28,3))))}
+monthlyScreen = function(IntExp = 4, Atten = 5){layout(cbind(matrix(data = c(1:12), nrow = 12, ncol = IntExp),matrix(data = c(13:24), nrow = 12, ncol = IntExp),matrix(c(rep(25,3),rep(26,3),rep(27,3),rep(28,3)), nrow = 12, ncol = Atten)))}
 
 #' Break Up Canvas
 #'
