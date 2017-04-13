@@ -28,3 +28,6 @@ drafts/PNAS/*.sty
 drafts/PNAS/Chezik_PNAS_MS.xwm
 drafts/PNAS/Chezik_PNAS_SI.xwm
 *xwm
+.Rproj.user
+
+*.pages
