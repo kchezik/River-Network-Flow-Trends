@@ -1,6 +1,6 @@
 #LaTex Makefile
 
-filename= Chezik_PNAS_MS
+filename= Chezik_PNAS_SI
 $(filename).pdf: $(filename).tex
 	latexmk -pdf -quiet -f $(filename)
 
