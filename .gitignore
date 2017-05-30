@@ -15,9 +15,16 @@ out_max.RData
 out_med.RData
 out_min.RData
 defunct_code/
-drafts/AGU_Journal/
+drafts/AGU_Journal/submission\ 1/
+drafts/AGU_Journal/drafts/
+drafts/AGU_Journal/guide/
+drafts/AGU_Journal/submission\ 2/*.pdf
+drafts/AGU_Journal/submission\ 2/*.bst
+drafts/AGU_Journal/submission\ 2/*.pages
+drafts/AGU_Journal/submission\ 2/*.cls
+drafts/AGU_Journal/submission\ 2/makefile
 drafts/Nature\ Climate\ Change/
-drafts/*pdf
+drafts/PNAS/
 mapPlot/
 drafts/PNAS/authorInformation/
 drafts/PNAS/Jon_Sean_Edits/
@@ -29,5 +36,5 @@ drafts/PNAS/Chezik_PNAS_MS.xwm
 drafts/PNAS/Chezik_PNAS_SI.xwm
 *xwm
 .Rproj.user
-
 *.pages
+LandCoverNotes*
