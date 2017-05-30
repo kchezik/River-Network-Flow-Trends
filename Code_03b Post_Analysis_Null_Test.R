@@ -33,22 +33,63 @@ M.Data = lapply(vars,function(x){
 })[[length(vars)]] %>% ungroup()
 rm(vars, MonthlyVars)
 
+#Incorporate Land cover data.
+setwd("~/sfuvault/Simon_Fraser_University/PhD_Research/Projects/Data/Original_Data/GIS_Data/BC_Climate_Data/ClimateTrends/forest_stats")
+#Gather Together all the sites timber harvest results.
+df = dir() %>% 
+	lapply(.,function(x){
+		year = as.numeric(substr(x,1,4))
+		read_csv(x,col_names = c("Station.ID","count")) %>% 
+			mutate(Year = year)
+	}) %>% 
+	bind_rows()
+#Convert the 100m X 100m raster count data to area of timber harvest in km^2.
+df = df %>% mutate(harvest = count*(0.1*0.1))
+#Create a rolling average column to account for recent cuts.
+roll = plyr::ddply(df, "Station.ID", function(x){
+	c = 1; FiveHarvest = NULL
+	for(i in 1970:2007){
+		FiveHarvest[c] = x %>% filter(Year <= i, Year >= i-5) %>% .$harvest %>% sum(.)
+		c = c + 1
+	}
+	data.frame(FiveHarvest, Year = c(1970:2007))
+})
+df = df %>% filter(Year >= 1970) %>% left_join(., roll, by = c("Station.ID","Year"))
+
+#
+M.Data = df %>% select(-count) %>% left_join(M.Data, ., by = c("Station.ID","Year"))
+Y.Data = df %>% select(-count) %>% left_join(Y.Data, ., by = c("Station.ID","Year"))
+M.Data = M.Data %>% mutate(pHarvest = harvest/Area, p5Harvest = FiveHarvest/Area)
+Y.Data = Y.Data %>% mutate(pHarvest = harvest/Area, p5Harvest = FiveHarvest/Area)
+M.Data = M.Data %>% group_by(Station.ID) %>% mutate(p5H_Center = scale(p5Harvest, scale=F))
+Y.Data = Y.Data %>% group_by(Station.ID) %>% mutate(p5H_Center = scale(p5Harvest, scale=F))
+rm(df)
+
 setwd("~/sfuvault/Simon_Fraser_University/PhD_Research/Projects/River-Network-Flow-Trends")
+save(Y.Data, file = "05_MonthDat_ClimForest.RData")
+save(M.Data, file = "05_AnnualDat_ClimForest.RData")
+
+load("05_MonthDat_ClimForest.RData")
+load("05_AnnualDat_ClimForest.RData")
+
 # this function fits slopes to real data
 fit_slopes <- function(flow.dat, response, pred.var, vars) {
-	area_dat <- unique(flow.dat[,c("Station.ID", vars)])
-	equation <- as.formula(paste(response,"~Year.Center"))
+	area_dat <- unique(flow.dat[,c("Station.ID", vars[-c(7,8)])]) #Edit
+	equation1 <- as.formula(paste(response,"~Year.Center")) #Edit
+	#equation2 <- as.formula(paste(response,"~Year.Center+p5H_Center")) #Edit
 	models <- plyr::ddply(flow.dat,"Station.ID", function(x){
 		library(nlme)
-		mod <- gls(equation, correlation = corAR1(), data = x)
+		#if(sum(x$p5Harvest)==0) mod <- gls(equation1, correlation = corAR1(), data = x) #Edit
+		#if(sum(x$p5Harvest)!=0) mod <- gls(equation2, correlation = corAR1(), data = x) #Edit
+		mod <- gls(equation1, correlation = corAR1(), data = x) #Edit
 		slope <- coef(mod)[[2]]
-		intercept <- coef(mod)[[1]]
 		se <- summary(mod)$tTable[2,2]
+		intercept <- coef(mod)[[1]]
 		sigma <- mod$sigma
 		phi <- coef(mod$model[[1]], unconstrained = F)[[1]]
 		data.frame(intercept,slope,se,sigma,phi)
 	})
-	models <- plyr::join(models,area_dat, by = "Station.ID")
+	models <- plyr::join(models, area_dat, by = "Station.ID")
 	models
 }
 
@@ -74,33 +115,17 @@ sim_slopes <- function(slope.dat, yrs, return_ts = FALSE){
 
 # this function fits a gls model with a variance structure for the residual error
 # slopes and area are both vectors
-fit_var <- function(slopes, ind, clim, var2 = F) {
+fit_var <- function(slopes, ind, clim) {
 	scale_factor <- var(slopes)
 	scaled_slope <- slopes / scale_factor
 	x <- sqrt(ind)
-	x <- x - mean(x)
+	x <- x - mean(x) #Centered so the y-intercept is the basin wide mean response.
 	v = sqrt(ind)/sd(sqrt(ind))
-	w = clim/sd(clim)
-	if(var2 == T){
-		tryCatch({
-			#m <- gls(scaled_slope~x, weights = varComb(varExp(form = ~v), varExp(form = ~w)),
-			m <- gls(scaled_slope~x, weights = varComb(varExp(form= ~exp(clim)),varExp(form= ~sqrt(ind)/1e3)),
-							 control = glsControl(maxIter = 1000L, msMaxIter = 1000L))
-			varexpA <- m$model[[1]][[1]][[1]]
-			varexpC <- m$model[[1]][[2]][[1]]
-			sigma <- m$sigma * scale_factor
-			intercept <- coef(m)[[1]] * scale_factor
-			slope = m$coefficients[[2]] * scale_factor
-			slopePval = summary(m)[[18]][8]
-			retrn = data.frame(varexpA, varexpC, sigma, intercept, slope, slopePval)
-		}, .error = function(e) {
-			retrn = data.frame(varexpA = NA, varexpC = NA, sigma = NA, intercept = NA, slope = NA, slopePval = NA)
-		})
-	}
-	if(var2 == F){
+	#Climate index response variable, weighted by area and centered.
+	w = clim - mean(clim)
 		tryCatch({
 			m <- gls(scaled_slope~x, weights = varExp(form= ~sqrt(ind)/1e3),
-			#m <- gls(scaled_slope~x, weights = varExp(form= ~exp(clim)),
+			#m <- gls(scaled_slope~w, weights = varExp(form= ~clim/10),
 							 control = glsControl(maxIter = 1000L, msMaxIter = 1000L))
 			varexp <- m$model[[1]][[1]]
 			sigma <- m$sigma * scale_factor
@@ -111,51 +136,50 @@ fit_var <- function(slopes, ind, clim, var2 = F) {
 		}, .error = function(e) {
 			retrn = data.frame(varexp = NA, sigma = NA, intercept = NA, slope = NA, slopePval = NA)
 		})
-	}
 	retrn
 }
 
 # wrapper function for analysis of individual predictor variables.
-null_sim <- function(flow.dat, response, pred.var, var2, vars, iter, .parallel){
+null_sim <- function(flow.dat, response, pred.var, vars, iter, .parallel){
   yrs <- unique(flow.dat$Year.Center)
   real_slopes <- fit_slopes(flow.dat, response, pred.var, vars)
   real_slopes = real_slopes %>% select(8:ncol(.)) %>% apply(., 2, function(x) zero_one(x)) %>% 
   	apply(., 1, function(x) sum(x)) %>% mutate(real_slopes, std.clim = .)
+  #Scale climate between one and zero and exponeniate to make things greater than zero.
+  real_slopes = mutate(real_slopes, index = std.clim*exp(zero_one(Area))) 
   example_ts <- sim_slopes(slope.dat = real_slopes, yrs = yrs, return_ts = TRUE)
   sim_varexp <- plyr::ldply(seq_len(iter), function(i){
     simulated_slopes <- sim_slopes(slope.dat = real_slopes, yrs = yrs)
     cols = names(simulated_slopes)
     out <- fit_var(simulated_slopes$slope_sim, 
     							 ind = simulated_slopes[,grep(pred.var, cols)], 
-    							 clim = simulated_slopes[,grep("std.clim", cols)],
-    							 var2 = var2)
+    							 clim = simulated_slopes[,grep("index", cols)])
     out$.n <- i
     out
   },.progress = "text", .parallel = .parallel)
   cols = names(real_slopes)
   real_varexp <- fit_var(real_slopes$slope, 
   											 ind = real_slopes[,grep(pred.var, cols)],
-  											 clim = real_slopes[,grep("std.clim", cols)],
-  											 var2 = var2)
+  											 clim = real_slopes[,grep("index", cols)])
   list(real_varexp = real_varexp, real_slopes = real_slopes,
     sim_varexp = sim_varexp, example_ts = example_ts)
 }
 
 # wrapper function to run analyses across all predictor variables.
-iter_null_sim <- function(flow.dat, response, pred.vars, var2, vars, iter, .parallel = FALSE){
+iter_null_sim <- function(flow.dat, response, pred.vars, vars, iter, .parallel = FALSE){
 	sapply(pred.vars, function(x){
-		null_sim(flow.dat, response, x, var2, vars, iter, .parallel)
+		null_sim(flow.dat, response, x, vars, iter, .parallel)
 	}, simplify = F, USE.NAMES = T)
 }
 
 doParallel::registerDoParallel(cores = parallel::detectCores()-1)
 
 set.seed(123)
-vars = c("Area","emt.sd","ext.sd","map.sd","mat.sd","pas.sd")
-out_doy2 <- iter_null_sim(Y.Data, "DOY2.logit", "Area", F, vars, 1000L, T)
-out_min <- iter_null_sim(Y.Data, "log(min.log.sd)", "Area", F, vars, 1000L, T)
-out_max <- iter_null_sim(Y.Data, "log(max.log.sd)", "Area", F, vars, 1000L, T)
-out_med <- iter_null_sim(Y.Data, "log(med.log.sd)", "Area", T, vars, 1000L, F)
+vars = c("Area","emt.sd","ext.sd","map.sd","mat.sd","pas.sd","p5Harvest", "p5H_Center")
+out_doy2 <- iter_null_sim(Y.Data, "DOY2.logit", "Area", vars, 10L, T)
+out_min <- iter_null_sim(Y.Data, "log(min.log.sd)", "Area", vars, 1000L, T)
+out_max <- iter_null_sim(Y.Data, "log(max.log.sd)", "Area", vars, 1000L, T)
+out_med <- iter_null_sim(Y.Data, "log(med.log.sd)", "Area", vars, 1000L, T)
 
 stopifnot(identical(sum(is.na(out_doy2$Area$sim_varexp$varexp)), 0L))
 stopifnot(identical(sum(is.na(out_min$Area$sim_varexp$varexp)), 0L))
