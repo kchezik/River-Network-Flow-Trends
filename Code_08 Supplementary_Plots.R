@@ -1,10 +1,57 @@
 #supplementary plots
-library(tidyverse);library(attenPlot)
+library(tidyverse);library(attenPlot);library(RColorBrewer);library(lme4)
+load("05_MonthDat_ClimForest.RData")
+load("05_AnnualDat_ClimForest.RData")
+
+#S1
+ggplot(Y.Data, aes(Year, Median.F, color = p5Harvest*100)) + geom_point() + 
+	facet_wrap(~Station.ID, scales = "free") + geom_smooth(method = "lm") +
+	scale_color_gradient2(name = expression(frac("%Harvest","5-Year")), midpoint=5, low="#67A9CF", mid="#F2F2F2",
+												high="#FF0000", space ="Lab") +
+	scale_x_continuous(name="Year", limits=c(1970, 2007), breaks = c(1970,1988,2007)) +
+	ylab(label = expression("Median Annual Flow (m"^3%.%"sec"^-1~")")) +
+	theme_classic(base_size = 9) +
+	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm"))
+folder = "~/sfuvault/Simon_Fraser_University/PhD_Research/Projects/River-Network-Flow-Trends/drafts/AGU_Journal/submission\ 2/"
+ggsave(paste(folder,"FigS1_SiteLogModels.pdf", sep = ""), width = 11, height = 8.5)
+
+#S2
+ggplot(M.Data, aes(p5Harvest*100, log(med.log.sd))) + geom_point(alpha = 0.5) + 
+	facet_wrap(~Month, scales = "free") + 
+	geom_smooth(aes(group = Station.ID, color = Station.ID), method ="lm", se = F) +
+	ylab(label = expression("log"["e"]~"Scaled Median Flow (m"^3%.%"sec"^-1*")"%.%"year"^-1)) +
+	xlab(expression("%Harvest"%.%"5-Year"^-1)) +
+	theme_classic(base_size = 9) +
+	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm"), legend.position = "none")
+ggsave(paste(folder,"FigS2_SiteMonthLogModels.pdf", sep = ""), width = 11, height = 8.5)
+
+#S3
+MmodGH = glmer(formula = med.log.sd~pHarvest+(1|Station.ID), family = Gamma(link = "log"), data = Y.Data)
+temp = bind_cols(Y.Data, data.frame(fixed = predict(MmodGH, Y.Data)))
+ggplot(temp, aes(pHarvest*100, log(med.log.sd), color = Station.ID)) + geom_point(alpha = 0.5) + 
+	geom_line(aes(pHarvest*100, fixed), color = "black") + #geom_line(aes(pHarvest, random, color = Station.ID)) +
+	ylab(label = expression("log"["e"]~"Scaled Median Flow (m"^3%.%"sec"^-1*")"%.%"year"^-1)) +
+	xlab(expression("%Harvest"%.%"5-Year"^-1)) +
+	theme_classic(base_size = 9) +
+	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm"), legend.position = "none")
+ggsave(paste(folder,"FigS3_GlobalLogModel.pdf", sep = ""), width = 7, height = 4)
+
+#S8
+ggplot(Y.Data, aes(Year, p5Harvest*100, color = Area)) + geom_jitter(alpha = 0.5) +
+	geom_smooth(aes(Year, p5Harvest*100, group = Station.ID), se = F) +
+	scale_color_continuous(low = "#DEEBF7", high = "#2171B5", trans = "log", 
+												 name = expression("Area (km"^2~")"), 
+												 breaks = c(400, 8000, 150000), labels = c("400", "8000", "150000")) +
+	ylab(expression("%Harvest"%.%"5-Year"^-1)) +
+	theme_classic(base_size = 9) +
+	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm"))
+ggsave(paste(folder,"FigS8_HarvestYear.pdf", sep = ""), width = 10, height = 5.5)
+
+#S4
 load("out_med.RData")
 load("03_Data_Annual.RData")
 logit = function(p){log(p/(1-p))}
 Y.Data = plyr::ddply(Y.Data,"Station.ID",plyr::mutate, med.log.sd = scale(Median.F, center = F), max.log.sd = scale(Max.F, center = F), min.log.sd = scale(Min.F, center = F), DOY2.logit = logit(DOY2/365), Year.Center = Year-1988)
-
 
 dat_sim = out_med$Area$example_ts; names(dat_sim)[2] = "Year.Center"
 dat = dplyr::left_join(dat_sim, Y.Data, by = c("Station.ID", "Year.Center"))
@@ -25,8 +72,9 @@ ggplot(dat, aes(Year, med_sim_unscale)) +
 	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm")) +
 	labs(x = "Year", y = expression("Simulated & Observed Annual Median-Flow (m"^3%.%"sec"^-1*")"%.%"year"^-1))
 
-ggsave("FigS3_SiteSim.pdf", width = 11, height = 8.5)
+ggsave(paste(folder,"FigS4_SiteSim.pdf", sep = ""), width = 11, height = 8.5)
 
+#S5
 #clean up NA's in simulated data where no observed data existed.
 dat$Area = apply(dat, 1, function(x){
 	#browser()
@@ -90,4 +138,4 @@ ggplot(final, aes(sqrt(Area), slope, colour = label)) +
 	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm")) +
 	labs(y = expression("Median-Flow | %Change"%.%"Decade"^-1), x = expression("Area (km"^2*")"))
 
-ggsave("FigS4_BasinSim.pdf", width = 11, height = 8.5)
+ggsave(paste(folder,"FigS5_BasinSim.pdf", sep = ""), width = 11, height = 8.5)
