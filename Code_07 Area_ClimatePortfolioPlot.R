@@ -30,7 +30,7 @@ wdth = 8.7/2.54; hght = wdth*0.6
 pdf("Fig2_ClimPort.pdf", width = wdth, height = hght)
 
 LW = 1; ALS = 0.7; LL = 1.2
-par(oma = c(2,0,0,0), mar = c(0,1.8,0.2,0), family = "serif", bg = "white",fg = "white", mgp = c(2,0.2,0))
+par(oma = c(2,0,0,0), mar = c(0,1.8,0.2,0), family = "serif", bg = "white", fg = "white", mgp = c(2,0.2,0))
 plot(std.clim~sqrtArea, data = df, xlab = "", ylab = "", axes = F, xlim = c(0,sqrt(250000)), ylim = c(0,4))
 par(fg = "black")
 axis(1, lwd = LW, cex.axis = ALS, outer = T, hadj = 1,
@@ -41,10 +41,10 @@ axis(2, lwd = LW, cex.axis = ALS, las = 1)
 mtext("Climate Variability Index", side = 2, line = LL, cex = ALS, las = 0)
 points(df$sqrtArea, df$std.clim, pch = 16, cex = 0.9, col = "#000000")
 
-lines(sqrt(preds$area), preds$preds, col = "#67A9CF")
+lines(sqrt(preds$area), preds$preds, col = "black")
 upper = data.frame(se = preds$se_upper, area = sqrt(preds$area))
 lower = data.frame(se = preds$se_lower, area = sqrt(preds$area)) %>% arrange(desc(area))
 poly = bind_rows(upper,lower) %>% dplyr::select(area, se)
-polygon(poly, col = "#96969699", lty = 1, border = "#96969699")
+polygon(poly, col = "#96969699", lty = 1, border = NA)
 
 dev.off()
