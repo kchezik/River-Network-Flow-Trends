@@ -1,4 +1,5 @@
-\documentclass[draft,grl]{agutexSI}
+%\documentclass[draft,grl]{agutexSI}
+\documentclass[grl]{agutexSI}
 
 \usepackage{upgreek}
 \usepackage{gensymb}
@@ -67,7 +68,7 @@ Burnaby, BC V5A1S6, Canada.
 
 \noindent\textbf{Introduction}
 
-	The following supplementary material includes 8 additional figures. Figures~\ref{fig:S1}, \ref{fig:S2}, \ref{fig:S3} and \ref{fig:S8} explore the impact of timber harvest on flow in the Fraser River basin in British Columbia, CA. These figures aim to demonstrate the complicated and unclear relationship between flow trends and forest cover change. Timber harvest data were obtained through British Columbia's Forest Practices Board, based on the Vegitation Resources Inventory (VRI) (\url{http:www.for.gov.bc.ca/hts/vri/}). Figures \ref{fig:S6} and \ref{fig:S7} are similar to figure 4 in the main text where monthly flow trends in the Fraser River basin are shown along with trend attenuation results. These supplementary figures highlight minimum and median seasonal flow trends rather than maximum seasonal flow trends. Figures \ref{fig:S4} and \ref{fig:S5} are example plots demonstrating a single null-model iteration for the median flow metric.
+	The following supplementary material includes 9 additional figures. Figures~\ref{fig:S1}, \ref{fig:S2}, \ref{fig:S3} and \ref{fig:S8} explore the impact of timber harvest on flow in the Fraser River basin in British Columbia, CA. These figures aim to demonstrate the complicated and unclear relationship between flow trends and forest cover change. Timber harvest data were obtained through British Columbia's Forest Practices Board, based on the Vegitation Resources Inventory (VRI) (\url{http:www.for.gov.bc.ca/hts/vri/}). Figures \ref{fig:S6} and \ref{fig:S7} are similar to figure 4 in the main text where monthly flow trends in the Fraser River basin are shown along with trend attenuation results. These supplementary figures highlight minimum and median seasonal flow trends rather than maximum seasonal flow trends. Figures \ref{fig:S4} and \ref{fig:S5} are example plots demonstrating a single null-model iteration for the median flow metric. Figure \ref{fig:S9} shows annual discharge curves at each flow gauge station in the Fraser River basin. This figure demonstrates that our flow data are well approximated by normal and lognormal distributions which suggests median, maximum, minimum flow metrics and our flow timing variable (i.e., day-of-year to half annual flow), are descriptive of the system and unlikely to be biased.
 
 %% ------------------------------------------------------------------------ %%
 %  END ARTICLE
@@ -78,7 +79,7 @@ Burnaby, BC V5A1S6, Canada.
 \begin{sidewaysfigure}[h]
 	\centering
 	\setfigurenum{S1}
-	\noindent\includegraphics[width=40pc]{FigS1_SiteLogModels.pdf}
+	\noindent\includegraphics[width=55pc]{FigS1_SiteLogModels.pdf}
 	\caption{Median annual flow plotted at an annual time step between 1970 and 2007 for 55 flow gauge stations within the Fraser River basin. Points are colored by the percent of the total watershed area harvested in the previous five years. Grey (blue: sites with no harvest) lines indicate the trend in flow over time using a linear model. Light grey around each trend line represents the 95\% confidence interval.}
 	\label{fig:S1}
 \end{sidewaysfigure}
@@ -86,7 +87,7 @@ Burnaby, BC V5A1S6, Canada.
 \begin{sidewaysfigure}[h]
 	\centering
 	\setfigurenum{S2}
-	\noindent\includegraphics[width=40pc]{FigS2_SiteMonthLogModels.pdf}
+	\noindent\includegraphics[width=55pc]{FigS2_SiteMonthLogModels.pdf}
 	\caption{The response of monthly median flow trends (1970-2007) to logging in 55 sub-basins (colors) of the Fraser River watershed. Timber harvest is quantified as the percent of watershed area cut in the previous five years. Flow trends represent the mean change in median flow over time after being scaled by site and log transformed to facilitate cross site comparsion. Lines, estimated using a linear model, depict the change in flow trends with increasing timber harvest for each flow gauge station.}
 	\label{fig:S2}
 \end{sidewaysfigure}
@@ -94,7 +95,7 @@ Burnaby, BC V5A1S6, Canada.
 \begin{figure}[h]
 	\centering
 	\setfigurenum{S3}
-	\noindent\includegraphics[width=35pc]{FigS3_GlobalLogModel.pdf}
+	\noindent\includegraphics[width=45pc]{FigS3_GlobalLogModel.pdf}
 	\caption{The global response of median annual flow trends in the Fraser River basin to timber harvest between 1970 and 2007. Points are colored by flow gauge station. Flow trends represent the mean change in the median flow over time after being scaled by site and log transformed for cross site comparison. The black line represents the fixed effect estimate of a generalized linear mixed model with a Gamma distribution and log link function, where random intercepts were allowed to vary by flow gauge station with a single shared slope. This model describes the typical impact of harvest on median flow trends across the Fraser River basin.}
 	\label{fig:S3}
 \end{figure}
@@ -102,7 +103,7 @@ Burnaby, BC V5A1S6, Canada.
 \begin{sidewaysfigure}[h]
 	\centering
 	\setfigurenum{S4}
-	\noindent\includegraphics[width=40pc]{FigS4_SiteSim.pdf}
+	\noindent\includegraphics[width=52pc]{FigS4_SiteSim.pdf}
 	\caption{Example site specific flow simulations. Annual median-flow simulations (yellow) and observations (blue) for all 55 sites considered in this study found within the Fraser River basin. Simulations at each site were parameterized using the observed data but no trend was imposed. Fifty-five site simulations equate to one basin-wide simulation. Each flow metric was simulated 1000 times basin-wide per response variable. See supplemental figure \ref{fig:S5} for resultant basin-wide simulation.}
 	\label{fig:S4}
 \end{sidewaysfigure}
@@ -110,7 +111,7 @@ Burnaby, BC V5A1S6, Canada.
 \begin{figure}[h]
 	\centering
 	\setfigurenum{S5}
-	\noindent\includegraphics[width=35pc]{FigS5_BasinSim.pdf}
+	\noindent\includegraphics[width=45pc]{FigS5_BasinSim.pdf}
 	\caption{Example flow simulation results. Trend estimates (dots) $\pm$SE (vertical lines) of simulated null-model data (yellow) and the observed data upon which simulations were based (blue), plotted against watershed area. Curved lines represent the estimated variance function given the simulated data. This is a single example result of the 1000 null-model simulations produced from the data in supplemental figure \ref{fig:S4}.}
 	\label{fig:S5}
 \end{figure}
@@ -118,7 +119,7 @@ Burnaby, BC V5A1S6, Canada.
 \begin{figure}[h]
 	\centering
 	\setfigurenum{S6}
-	\noindent\includegraphics[width=35pc]{FigS6_MinMonth.pdf}
+	\noindent\includegraphics[width=40pc]{FigS6_MinMonth.pdf}
 	\caption{Monthly minimum flow trend attenuation within the Fraser River basin. (\textbf{Left}) Fraser River's basin-wide minimum-flow trend estimates (i.e., intercept = vertical grey lines) by month with density distributions of null-model simulations. Observed values falling further from the center of the density distribution suggest greater evidence for changes in minimum flow and a greater shift in magnitude. (\textbf{Center}) Observed monthly Fraser River minimum-flow variance exponent ($\hat{\updelta}$, blue) and associated density distribution of simulated $\hat{\updelta}$ estimates. Decimal values represent the percent of simulated data exhibiting weaker attenuation (yellow) than observed. (\textbf{Right}) Trend estimates ($\hat{b}_{s}$) $\pm$ one standard error (SE, grey) plotted against watershed area (km\textsuperscript{2}), colored by climate portfolio strength (green = small, blue = large), for four seasonally representative months. These reflect months in the prior columns and describe the variation in percent change per decade of minimum flow among sites. Simulated lines ignore variance in the intercept and slope to focus visually on attenuation.}
 	\label{fig:S6}
 \end{figure}
@@ -126,7 +127,7 @@ Burnaby, BC V5A1S6, Canada.
 \begin{figure}[h]
 	\centering
 	\setfigurenum{S7}
-	\noindent\includegraphics[width=35pc]{FigS7_MedMonth.pdf}
+	\noindent\includegraphics[width=40pc]{FigS7_MedMonth.pdf}
 	\caption{Monthly median flow trend attenuation within the Fraser River basin. (\textbf{Left}) Fraser River's basin-wide median-flow trend estimates (i.e., intercept = vertical grey lines) by month with density distributions of null-model simulations. Observed values falling further from the center of the density distribution suggest greater evidence for changes in median flow and a greater shift in magnitude. (\textbf{Center}) Observed monthly Fraser River median-flow variance exponent ($\hat{\updelta}$, blue) and associated density distribution of simulated $\hat{\updelta}$ estimates. Decimal values represent the percent of simulated data exhibiting weaker attenuation (yellow) than observed. (\textbf{Right}) Trend estimates ($\hat{b}_{s}$) $\pm$ one standard error (SE, grey) plotted against watershed area (km\textsuperscript{2}), colored by climate portfolio strength (green = small, blue = large), for four seasonally representative months. These reflect months in the prior columns and describe the variation in percent change per decade of median flow among sites. Simulated lines ignore variance in the intercept and slope to focus visually on attenuation.}
 	\label{fig:S7}
 \end{figure}
@@ -134,9 +135,17 @@ Burnaby, BC V5A1S6, Canada.
 \begin{sidewaysfigure}[h]
 	\centering
 	\setfigurenum{S8}
-	\noindent\includegraphics[width=40pc]{FigS8_HarvestYear.pdf}
+	\noindent\includegraphics[width=55pc]{FigS8_HarvestYear.pdf}
 	\caption{Timber harvest between 1970 and 2007 within 55 sub-basins of the Fraser River watershed in British Columbia, CA. Timber harvest is quantified as the percent of each sub-basins area harvested in the previous five years. Lines are loess smoothers indicating general trends over time for each sub-basin and are colored by sub-basin drainage area.}
 	\label{fig:S8}
+\end{sidewaysfigure}
+
+\begin{sidewaysfigure}[h]
+	\centering
+	\setfigurenum{S9}
+	\noindent\includegraphics[width=55pc]{FigS9_FlowCurvesRaw.pdf}
+	\caption{Smoothed, five-day rolling average flow rates for each day in each year between 1970 and 2007 at 55 flow gauge stations in the Fraser River watershed. Years are colored oldest (red) to most recent (blue). The distributions demonstrate that flow in the Fraser River basin is defined by a spring melt and typically low summer flows. Flow timing, duration and magnitude vary between sites but are largely grouped by coastal and interior locations. For instance, sites 08MH006, 08MH029, 08MH076 and 08MH090 experience an earlier freshet and higher fall and winter flows due to their coastal proximity. }
+	\label{fig:S9}
 \end{sidewaysfigure}
 
 \end{document}

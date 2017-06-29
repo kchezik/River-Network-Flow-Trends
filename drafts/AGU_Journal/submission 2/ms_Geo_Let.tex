@@ -1,14 +1,14 @@
 %% To submit your paper:
-\documentclass[draft,linenumbers]{AGUJournal}
-\drafttrue
+%\documentclass[draft,linenumbers]{AGUJournal}
+%\drafttrue
+
+%% For final version.
+\documentclass{AGUJournal}
 
 %Packages
 \usepackage{upgreek}
 \usepackage{gensymb}
 \usepackage{color,soul}
-
-%% For final version.
-% \documentclass{AGUJournal}
 
 \journalname{Geophysical Research Letters}
 
@@ -37,7 +37,7 @@
 
 \begin{keypoints}
 \item River networks dampen long-term flow trends by integrating varied climate responses across complex landscapes.
-\item Large sub-catchments integrate greater climate trend diversity, dampening the local extremes of climate change.
+\item \replaced{Large}{Larger} sub-catchments integrate greater climate trend diversity, dampening the local extremes of climate change.
 \item Rivers may possess an under-appreciated capacity, and provide a tool, for mitigating the impacts of climate change.
 \end{keypoints}
 
@@ -60,7 +60,7 @@ As billions are spent adapting to climate change by such means as building dikes
 \begin{figure}[h]
 \centering
 \includegraphics[width=35pc]{Fig1_Map.pdf}
-	\caption{Climate trends (1970 - 2007) in mean annual temperature (MAT) and mean annual precipitation (MAP) within the Fraser River basin overlaid on a digital elevation model of British Columbia, Canada. Flow gauge sites (dots) are scaled by the size of the contributing area. The map is projected in Albers BC UTMs to provide an equal area depiction of the region but labels are expressed in WGS84 latitude and longitude.}
+	\caption{Climate trends (1970 - 2007) in mean annual temperature (MAT) and mean annual precipitation (MAP) within the Fraser River basin overlaid on a digital elevation model \replaced{of}{within} British Columbia, Canada. Flow gauge sites (dots) are scaled by the size of the contributing area. The map is projected in Albers BC UTMs to provide an equal area depiction of the region but labels are expressed in WGS84 latitude and longitude.}
 \label{fig:1}
 \end{figure}
 
@@ -70,7 +70,7 @@ Here we consider whether river networks attenuate local long-term climate change
 
 \subsection{Discharge Data and Flow Metrics}
 
-	To assess signals of climate change in hydrology within the Fraser River basin we downloaded daily flow data from Environment Canada's HYDAT database. Within HYDAT we selected Fraser River basin hydro-metric gauge stations that were not observed to be dam influenced and which collected data in each month between 1970 and 2007; where no month was missing more than 5 days data and at least 35 complete years were present. We selected this 38-year range because this period maximized the number of gauge stations in the Fraser River basin (\textit{n}=55) operating concurrently over a long enough time period in which climate trends may be observable. We linearly interpolated missing data in log-space, but of the 746,544 days of data only 23 days were interpolated. These daily data were smoothed using a five-day rolling average before summarizing into annual and monthly response variables. This smoothing technique was used to reduce the influence of erroneous and unusually extreme values. Because dams control flow and stabilize flow trends, we removed sites where daily flow exhibited unusually high autocorrelation and low variability relative to other sites of similar size, and sites that were observed downstream of, and atypically close to, a dam (\textit{n}=3). The downstream distance of gauge stations from dams was determined using GIS spatial layers in the \textit{BC Data Catalog}, maintained by the BC provincial goverment.
+	To assess signals of climate change in hydrology within the Fraser River basin we downloaded daily flow data from Environment Canada's HYDAT database. Within HYDAT we selected Fraser River basin hydro-metric gauge stations that were not observed to be dam influenced and which collected data in each month between 1970 and 2007; where no month was missing more than 5 days data and at least 35 complete years were present. We selected this 38-year range because this period maximized the number of gauge stations in the Fraser River basin (\textit{n}=55) operating concurrently over a long enough time period in which climate trends may be observable. We linearly interpolated missing data in log-space, but of the 746,544 days of data only 23 days were interpolated. These daily data were smoothed using a five-day rolling average before summarizing into annual and monthly response variables. This smoothing technique was used to reduce the influence of erroneous and unusually extreme values \citep [e.g.,][]{Dery:2009}. Because dams control flow and stabilize flow trends, we removed sites where daily flow exhibited unusually high autocorrelation and low variability relative to other sites of similar size, and sites that were observed downstream of, and atypically close to, a dam (\textit{n}=3). The downstream distance of gauge stations from dams was determined using GIS spatial layers in the \textit{BC Data Catalog}, maintained by the BC provincial goverment.
 
 	As climate change shifts precipitation patterns from snow to rain in temperate regions, rivers are generally predicted to have lower low-flows and higher high-flows, as well as earlier snowmelt \citep{Nijssen:2001}. These manifestations of rising temperatures are impacting species \citep{Xenopoulos:2006} and people \citep{Hirabayashi:2013}. We summarized our daily rolling average discharge data into annual and monthly flow metrics that capture these transitions. We used maximum- and minimum-flow estimates to capture trends in extreme discharge and median-flow estimates to capture general annual and seasonal trends. Because timing of flow is particularly important to the phenology of many organisms, we also calculated the day-of-year in which half the annual flow was reached. 
 
@@ -94,20 +94,20 @@ For a river network to act as a portfolio of climate and dampen the effects of c
   \epsilon_{s,t} \sim \mathcal{N}(\upphi \epsilon_{s,t-1}, \sigma_\mathrm{C}^2) \label{eq2},
 \end{equation}
 \end{linenomath*}
-where $\mathrm{C}_{s,t}$ represents a climate variable and $\mathrm{Y}_{s,t}$ represents the time in years (e.g., 1970, 1971, \ldots, 2007). Parameters $\beta_{s}$ (slope) and $\alpha_{s}$ (intercept) represent the estimated mean effect of time on $\mathrm{C}_{s,t}$ and the estimate of $\mathrm{climate}_{s,t}$ at time zero, respectively. Autocorrelated errors were incorporated as in eq.~\ref{eq1}.
+where $\mathrm{C}_{s,t}$ represents a climate variable and $\mathrm{Y}_{s,t}$ represents the time in years (e.g., 1970, 1971, \ldots, 2007). Parameters $\beta_{s}$ (slope) and $\alpha_{s}$ (intercept) represent the estimated mean effect of time on $\mathrm{C}_{s,t}$ and the estimate of $\mathrm{C}_{s,t}$ at time zero, respectively. Autocorrelated errors were incorporated as in eq.~\ref{eq1}.
 	
 	Spatial variation in climate change would suggest catchments of different size integrate different amounts of climate variability. In order to calculate a climate index for each gauge station we delineated flow-gauge catchments and summarized climate trends within those catchments. Using Whitebox Geospatial Analysis Tools \citep{Lindsay:2016}, we delineated the Fraser River basin and the catchment areas of each flow-gauge station. Digital elevation models were provided by the provincial government of British Columbia, Canada and state government of Washington, USA and were pre-processed with a breaching algorithm and stream burned to facilitate proper flow path and accumulation models \citep{Woodrow:2016}. We summarized the climate variability integrated at each flow gauge by calculating the standard deviation in climate trends within their catchments using the \textit{rasterstats} module (\url{https://github.com/perrygeo/python-rasterstats.git}) in Python v2.7. The standard deviations of these climate variables were scaled between 0 and 1 and summed as a general climate index for each catchment.
 
 \subsection{Quantifying the River Network Portfolio Effect}
 
-We hypothesize that flow gauge sites with larger climate portfolios will exhibit greater long-term flow trend stability than sites with smaller climate portfolios. We used catchment area as a proxy for the climate portfolio diversity of a given site, given that larger catchments have more variable climate portfolios (Figure~\ref{fig:2}) as well as aggregate more water and carry more weight on downstream dampening. Therefore, to test whether networks dampen climate signals, we regressed site-specific trend estimates (e.g., \% change$\cdot$decade\textsuperscript{-1}) onto each site's catchment area using a generalized least squares model:
+We hypothesize that flow gauge sites with larger climate portfolios will exhibit greater long-term flow trend stability than sites with smaller climate portfolios. We used catchment area as a proxy for the climate portfolio diversity of a given site, given that larger \added{Fraser River sub-}catchments have more variable climate portfolios (Figure~\ref{fig:2}) as well as aggregate more water and carry more weight on downstream dampening. Therefore, to test whether networks dampen climate signals, we regressed site-specific trend estimates (e.g., \% change$\cdot$decade\textsuperscript{-1}) onto each site's catchment area using a \replaced{generalized least squares}{GLS} model:
 \begin{linenomath*}
 \begin{equation}
 	\hat{b}_{s} = c + d\sqrt{\mathrm{A}_{s}} + \eta_{s}, \quad
   \eta_{s} \sim \mathcal{N}(0, f(\mathrm{A}_{s})) \label{eq3},
 \end{equation}
 \end{linenomath*}
-where $\hat{b}_{s}$ represents a flow trend at a given site ($s$) and $\mathrm{A}_{s}$ represents site $s$'s watershed area. We adjusted $\sqrt{\mathrm{A}_{s}}$ by subtracting the mean $\sqrt{\mathrm{A}}$, thereby centering our predictor. Fitted $d$ and $c$ parameters represent the mean effect of watershed area ($\sqrt{\mathrm{A}}$), on flow trends and the mean flow trend for a $\sim$5,700 km\textsuperscript{2} watershed, respectively. Captured in our climate portfolio proxy variable ($\mathrm{A}$), is the interaction between climate and landuse. Timber harvest, the dominant source of land cover change in the Fraser River basin, scales with sub-basin area and contributes to changes in flow. Although exploratory linear models at the site level do suggest an effect of timber harvest on long-term flow trends for some gauge stations (Figure~S1, S2), when information is shared across sites in a global model, climate effects dominate (Figure~S3). Thus we did not attempt to separate the contributions of land cover change, climate change and their interaction on long-term flow trends.
+where $\hat{b}_{s}$ represents a flow trend at a given site ($s$) and $\mathrm{A}_{s}$ represents site $s$'s watershed area. We adjusted $\sqrt{\mathrm{A}_{s}}$ by subtracting the mean $\sqrt{\mathrm{A}}$, thereby centering our predictor. Fitted $d$ and $c$ parameters represent the mean effect of watershed area ($\sqrt{\mathrm{A}}$), on flow trends and the mean flow trend for \replaced{a}{an average sized watershed (i.e.,} $\sim$5,700 km\textsuperscript{2}\added{)} \deleted{watershed}, respectively. Captured in our climate portfolio proxy variable ($\mathrm{A}$), is the interaction between climate and landuse. Timber harvest, the dominant source of land cover change in the Fraser River basin, scales with sub-basin area and contributes to changes in flow. Although exploratory linear models at the site level do suggest an effect of timber harvest on long-term flow trends for some gauge stations (Figure~S1, S2), when information is shared across sites in a global model, climate effects dominate (Figure~S3). Thus we did not attempt to separate the contributions of land cover change, climate change and their interaction on long-term flow trends.
 
 To quantify attenuation, we modeled the change in trend variability with the change in catchment area using an exponential variance function \citep[p.~211]{Pinheiro:2000}: 
 \begin{linenomath*}
@@ -115,7 +115,7 @@ To quantify attenuation, we modeled the change in trend variability with the cha
 	f(\mathrm{A}_{s}) = \sigma_b^2 \exp(2\updelta\sqrt{\mathrm{A}_{s}}) \label{eq4},
 \end{equation}
 \end{linenomath*}
-where the variance of the estimated error ($\eta_{s}$) changes exponentially with increasing $\sqrt{\mathrm{A}}$. This variance function allowed us to predict the range of flow trend values that would be expected as watershed area increased. A decreasing range of flow trends with increasing watershed area indicates a dampening network effect.
+where the variance of the estimated error ($\eta_{s}$) \deleted{changes} exponentially \replaced{increasing}{increases} with $\sqrt{\mathrm{A}}$ \added{as defined by the estimated $\updelta$ parameter.} This variance function allowed us to predict the range of flow trend values that would be expected as watershed area increased. A decreasing range of flow trends with increasing watershed area indicates a dampening network effect.
 
 \subsection{River Attenuation Null Model Simulations}
 
@@ -135,12 +135,12 @@ Long-term changes in flow metrics varied substantially across the watershed. For
 
 \subsection{Climate Trend Diversity}
 
-Our index of climate variability increased with area (Figure~\ref{fig:2}), asymptoting in catchments larger than 40,000~km\textsuperscript{2}. Thus, rivers that drain larger catchments integrate a greater diversity of shifting climates. These findings suggest that larger areas contain greater landscape complexity resulting in a greater variety of climatic expressions that respond to changes in global climate differently.
+Our index of climate variability increased with area (Figure~\ref{fig:2}), asymptoting in catchments larger than 40,000~km\textsuperscript{2}. Thus, rivers that drain larger catchments integrate a greater diversity of shifting climates. These findings suggest that larger areas contain greater landscape complexity, \replaced{resulting in a greater variety of climatic expressions that respond to changes in global climate differently.}{which produce a variety of climates locally and respond to global climate shifts differently.}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=20pc]{Fig2_ClimPort.pdf}
-	\caption{Climate variability index as a function of catchment area. The mean trend line (black) was estimated using robust linear regression and standard error estimates (SE) (2$\cdot$SE = grey) were calculated using the weighted standard deviation estimate.}
+	\caption{Climate variability index as a function of catchment area. \replaced{The mean trend line (black) was estimated using robust linear regression and standard error estimates (SE)(2$\cdot$SE=grey) were calculated using the weighted standarad deviation estimate.}{As watershed area increases the variety of climatic trends within the watershed increases at a diminishing rate.}} 
 \label{fig:2}
 \end{figure}
 
@@ -220,18 +220,19 @@ Bindoff, N.~L., P.~A. Stott, M.~{AchutaRao}, M.~R. Allen, N.~Gillett,
   A. Nauels, Y. Xia, V. Bex and P.M. Midgley (eds.)].}}, Cambridge University
   Press.
 
+\bibitem[{\textit{D{\'e}ry et~al.}(2009)\textit{D{\'e}ry, Stahl, Moore,
+  Whitfield, Menounos, and Burford}}]{Dery:2009}
+D{\'e}ry, S.~J., K.~Stahl, R.~Moore, Whitfield, B.~Menounos, and J.~E. Burford
+  (2009), Detection of runoff timing changes in pluvial, nival, and glacial
+		rivers of western canada, \textit{Water Resour Res}, \textit{45}(4),
+  \doi{10.1029/2008WR006975}.
+
 \bibitem[{\textit{D{\'e}ry et~al.}(2012)\textit{D{\'e}ry,
   {Hern{\'a}ndez-Henr{\'\i}quez}, Owens, Parkes, and Petticrew}}]{Dery:2012}
 D{\'e}ry, S.~J., M.~A. {Hern{\'a}ndez-Henr{\'\i}quez}, P.~N. Owens, M.~W.
   Parkes, and E.~L. Petticrew (2012), A century of hydrological variability and
   trends in the {Fraser River} basin, \textit{Environ Res Lett}, \textit{7}(2),
   \doi{10.1088/1748-9326/7/2/024019}.
-
-\bibitem[{\textit{Do~Hyuk~Kang et~al.}(2016)\textit{Do~Hyuk~Kang, Shi,
-  ul~Islam, and D{\'e}ry}}]{Kang:2016}
-Do~Hyuk~Kang, H.~G., X.~Shi, S.~ul~Islam, and S.~J. D{\'e}ry (2016), Impacts of
-		a rapidly declining mountain snowpack on streamflow timing in {C}anada{'}s
-  {Fraser River} basin, \textit{Scientific reports}, \textit{6}.
 
 \bibitem[{\textit{Doak et~al.}(1998)\textit{Doak, Bigger, Harding, Marvier,
   {RE}, and Thomson}}]{Doak:1998}
@@ -301,6 +302,12 @@ Jones, H.~P., D.~G. Hole, and E.~S. Zavaleta (2012), Harnessing nature to help
   D{\'e}ry}}]{Kang:2014}
 Kang, D., X.~Shi, H.~Gao, and S.~D{\'e}ry (2014), On the changing contribution
   of snow to the hydrology of the {F}raser {R}iver basin, {C}anada.
+
+\bibitem[{\textit{Kang et~al.}(2016)\textit{Kang, Shi,
+  Islam, and D{\'e}ry}}]{Kang:2016}
+Kang, D., H.~Gao, X.~Shi, S.~ul~Islam, and S.~J. D{\'e}ry (2016), Impacts of
+		a rapidly declining mountain snowpack on streamflow timing in {C}anada{'}s
+  {Fraser River} basin, \textit{Scientific {R}eports}, \textit{6}.
 
 \bibitem[{\textit{LDNR}(1998)}]{LDNR:1998}
 LDNR (1998), Coast 2050: Toward a sustainable coastal {L}ouisiana.
