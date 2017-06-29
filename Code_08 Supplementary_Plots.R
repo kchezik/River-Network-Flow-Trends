@@ -1,5 +1,5 @@
 #supplementary plots
-library(tidyverse);library(attenPlot);library(RColorBrewer);library(lme4)
+library(tidyverse);library(attenPlot);library(RColorBrewer);library(lme4);library(zoo);library(lubridate)
 load("05_MonthDat_ClimForest.RData")
 load("05_AnnualDat_ClimForest.RData")
 
@@ -13,7 +13,7 @@ ggplot(Y.Data, aes(Year, Median.F, color = p5Harvest*100)) + geom_point() +
 	theme_classic(base_size = 9) +
 	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm"))
 folder = "~/sfuvault/Simon_Fraser_University/PhD_Research/Projects/River-Network-Flow-Trends/drafts/AGU_Journal/submission\ 2/"
-ggsave(paste(folder,"FigS1_SiteLogModels.pdf", sep = ""), width = 11, height = 8.5)
+ggsave(paste(folder,"FigS1_SiteLogModels.pdf", sep = ""), width = 11, height = 7.5)
 
 #S2
 ggplot(M.Data, aes(p5Harvest*100, log(med.log.sd))) + geom_point(alpha = 0.5) + 
@@ -23,12 +23,12 @@ ggplot(M.Data, aes(p5Harvest*100, log(med.log.sd))) + geom_point(alpha = 0.5) +
 	xlab(expression("%Harvest"%.%"5-Year"^-1)) +
 	theme_classic(base_size = 9) +
 	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm"), legend.position = "none")
-ggsave(paste(folder,"FigS2_SiteMonthLogModels.pdf", sep = ""), width = 11, height = 8.5)
+ggsave(paste(folder,"FigS2_SiteMonthLogModels.pdf", sep = ""), width = 11, height = 7.5)
 
 #S3
 MmodGH = glmer(formula = med.log.sd~pHarvest+(1|Station.ID), family = Gamma(link = "log"), data = Y.Data)
 temp = bind_cols(Y.Data, data.frame(fixed = predict(MmodGH, Y.Data)))
-ggplot(temp, aes(pHarvest*100, log(med.log.sd), color = Station.ID)) + geom_point(alpha = 0.5) + 
+ggplot(temp, aes(pHarvest*100, log(as.numeric(med.log.sd)), color = Station.ID)) + geom_point(alpha = 0.5) + 
 	geom_line(aes(pHarvest*100, fixed), color = "black") + #geom_line(aes(pHarvest, random, color = Station.ID)) +
 	ylab(label = expression("log"["e"]~"Scaled Median Flow (m"^3%.%"sec"^-1*")"%.%"year"^-1)) +
 	xlab(expression("%Harvest"%.%"5-Year"^-1)) +
@@ -72,7 +72,7 @@ ggplot(dat, aes(Year, med_sim_unscale)) +
 	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm")) +
 	labs(x = "Year", y = expression("Simulated & Observed Annual Median-Flow (m"^3%.%"sec"^-1*")"%.%"year"^-1))
 
-ggsave(paste(folder,"FigS4_SiteSim.pdf", sep = ""), width = 11, height = 8.5)
+ggsave(paste(folder,"FigS4_SiteSim.pdf", sep = ""), width = 11, height = 7.5)
 
 #S5
 #clean up NA's in simulated data where no observed data existed.
@@ -138,4 +138,34 @@ ggplot(final, aes(sqrt(Area), slope, colour = label)) +
 	theme(plot.margin = unit(c(0.1,0.1,0.1,0.1), "cm")) +
 	labs(y = expression("Median-Flow | %Change"%.%"Decade"^-1), x = expression("Area (km"^2*")"))
 
-ggsave(paste(folder,"FigS5_BasinSim.pdf", sep = ""), width = 11, height = 8.5)
+ggsave(paste(folder,"FigS5_BasinSim.pdf", sep = ""), width = 11, height = 7.5)
+
+#S9
+#Load Data
+load("02b_Missing_Data_Predictions.RData")
+
+#Calculate Rolling Average to smooth out daily extremes.
+flow.stats = Data.Preds %>% group_by(Station.ID) %>% 
+	arrange(Date) %>%
+	do({
+		z = zoo(.$Flow.Data, .$Date)
+		x = rollapply(data = z, width = 5, by = 1, FUN = mean)
+		data.frame(Date = index(x), mean5day = coredata(x))
+	})
+Data.Preds = Data.Preds %>% left_join(., flow.stats, by  = c("Station.ID", "Date"))
+
+coast = c("08MH006","08MH029","08MH076","08MH090")
+Data.Preds = Data.Preds %>% mutate(DOYAdj = if_else(Station.ID %in% coast, yday(ymd(Date)+200), yday(Date)))
+
+colourCount = length(unique(Data.Preds$Year))
+getPalette = colorRampPalette(brewer.pal(11, "RdYlBu"))
+
+#Change DOY to DOYAdj for adjusted DOY for coastal sites.
+ggplot(Data.Preds) + 
+	geom_smooth(aes(DOY, mean5day, group = Year, color = Year), se = F) + 
+	scale_color_gradientn(colours = getPalette(colourCount)) +
+	labs(y = expression("Flow (m"^3%.%"s"^-1*")"), x = "Day of Year") + 
+	theme_classic(base_size = 9) +
+	facet_wrap(~Station.ID, scales = "free")
+
+ggsave(paste(folder,"FigS9_FlowCurvesRaw.pdf", sep = ""), width = 11, height = 7.5)

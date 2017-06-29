@@ -44,7 +44,7 @@ Data = plyr::match_df(Data,Stations.Final,on = "Station.ID")
 save(Data,file = "02a_Data_Clean.RData")
 ```
 
-###Interpolate Mising Data
+###Interpolate Missing Data
 ```{r,echo=F,message=F, dependson=1}
 #Fill in missing data for the 'day of year' analysis.
 load("02a_Data_Clean.RData") #Load processesed data.
